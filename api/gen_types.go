@@ -56,7 +56,7 @@ type SummaryRequest struct {
 		// The threshold value for the quantiles.  All samples must be below the threshold to be included in the count.
 		Threshold float32 `json:"threshold"`
 	} `json:"quantiles"`
-	Units Units0 `json:"units"`
+	Units ComponentsSchemasSummaryRequestPropertiesUnits `json:"units"`
 }
 
 // SummaryResponse defines model for SummaryResponse.
@@ -113,7 +113,9 @@ type SummaryResponse struct {
 
 	// Summary of recent glucose information.
 	Reports []SummaryReport `json:"reports"`
-	Userid  string          `json:"userid"`
+
+	// String representation of a Tidepool User ID
+	Userid ComponentsParametersUserIdSchema `json:"userid"`
 }
 
 // SummaryStatistics defines model for SummaryStatistics.
@@ -126,8 +128,8 @@ type SummaryStatistics struct {
 	Mean *float32 `json:"mean,omitempty"`
 
 	// An array of quantile measurements.
-	Quantiles *[]Quantile `json:"quantiles,omitempty"`
-	Units     *Units0     `json:"units,omitempty"`
+	Quantiles *[]Quantile                                     `json:"quantiles,omitempty"`
+	Units     *ComponentsSchemasSummaryRequestPropertiesUnits `json:"units,omitempty"`
 }
 
 // UpdateEvent defines model for UpdateEvent.
@@ -140,15 +142,18 @@ type UpdateEvent struct {
 	Type string `json:"type"`
 }
 
-// Units0 defines model for units-0.
-type Units0 string
+// ComponentsParametersUserIdSchema defines model for components-parameters-userId-schema.
+type ComponentsParametersUserIdSchema string
 
-// List of Units0
+// ComponentsSchemasSummaryRequestPropertiesUnits defines model for components-schemas-SummaryRequest-properties-units.
+type ComponentsSchemasSummaryRequestPropertiesUnits string
+
+// List of ComponentsSchemasSummaryRequestPropertiesUnits
 const (
-	Units0_mg_dL  Units0 = "mg/dL"
-	Units0_mg_dl  Units0 = "mg/dl"
-	Units0_mmol_L Units0 = "mmol/L"
-	Units0_mmol_l Units0 = "mmol/l"
+	ComponentsSchemasSummaryRequestPropertiesUnits_mg_dL  ComponentsSchemasSummaryRequestPropertiesUnits = "mg/dL"
+	ComponentsSchemasSummaryRequestPropertiesUnits_mg_dl  ComponentsSchemasSummaryRequestPropertiesUnits = "mg/dl"
+	ComponentsSchemasSummaryRequestPropertiesUnits_mmol_L ComponentsSchemasSummaryRequestPropertiesUnits = "mmol/L"
+	ComponentsSchemasSummaryRequestPropertiesUnits_mmol_l ComponentsSchemasSummaryRequestPropertiesUnits = "mmol/l"
 )
 
 // GetV1ClinicsCliniidSummaryJSONBody defines parameters for GetV1ClinicsCliniidSummary.

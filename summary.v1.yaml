@@ -478,7 +478,7 @@ components:
           items:
             $ref: '#/components/schemas/SummaryReport'
         userid:
-          type: string
+          $ref: '#/components/parameters/userId/schema'
       required:
         - reports
         - userid

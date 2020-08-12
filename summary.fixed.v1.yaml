@@ -23,12 +23,7 @@ components:
       name: userId
       required: true
       schema:
-        description: String representation of a Tidepool User ID
-        maxLength: 10
-        minLength: 10
-        pattern: ^[a-f0-9]{10}
-        title: Tidepool User ID
-        type: string
+        $ref: '#/components/schemas/userId'
   schemas:
     Quantile:
       additionalProperties: false
@@ -170,12 +165,22 @@ components:
             type: object
           type: array
         units:
-          $ref: '#/components/schemas/units-0'
+          $ref: '#/components/schemas/SummaryRequest-properties-units'
       required:
       - units
       - quantiles
       title: Summary request
       type: object
+    SummaryRequest-properties-units:
+      enum:
+      - mmol/L
+      - mmol/l
+      - mg/dL
+      - mg/dl
+      title: Blood Glucose Units
+      type: string
+      x-tags:
+      - data
     SummaryResponse:
       additionalProperties: false
       default: {}
@@ -307,7 +312,7 @@ components:
           title: Recent Statisical Summaries
           type: array
         userid:
-          type: string
+          $ref: '#/components/schemas/userId'
       required:
       - reports
       - userid
@@ -398,7 +403,7 @@ components:
             $ref: '#/components/schemas/Quantile'
           type: array
         units:
-          $ref: '#/components/schemas/units-0'
+          $ref: '#/components/schemas/SummaryRequest-properties-units'
       title: Summary statistics
       type: object
       x-examples:
@@ -458,16 +463,13 @@ components:
         example-1:
           time: '2020-07-06T08:29:02Z'
           type: smbg
-    units-0:
-      enum:
-      - mmol/L
-      - mmol/l
-      - mg/dL
-      - mg/dl
-      title: Blood Glucose Units
+    userId:
+      description: String representation of a Tidepool User ID
+      maxLength: 10
+      minLength: 10
+      pattern: ^[a-f0-9]{10}
+      title: Tidepool User ID
       type: string
-      x-tags:
-      - data
   securitySchemes:
     bearerToken:
       description: ''

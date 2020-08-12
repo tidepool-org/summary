@@ -7,12 +7,16 @@ import yaml
 
 unnamed = 0
 
+omit=frozenset([ "#", "components", "schemas", "schema", "parameters"])
+
 def keyFor(path):
     global unnamed
     parts = path.split("/")
     name = parts[-1] + "-" + str(unnamed)
     unnamed = unnamed + 1
-    return name
+    print(parts, file=sys.stderr)
+    filtered=filter(lambda x: x not in omit, parts)
+    return "-".join(filtered)
 
 
 def findKey(d, key):
