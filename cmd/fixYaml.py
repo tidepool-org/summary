@@ -8,7 +8,9 @@ from urllib.parse import unquote
 import yaml
 
 
-def keyFor(name):
+def keyFor(path):
+    parts = path.split("/")
+    name = parts[-1]
     letters = string.ascii_lowercase
     return name + '-' + ''.join(random.choice(letters) for i in range(4))
 
@@ -48,6 +50,10 @@ def pathOk(path):
 if __name__ == "__main__":
     key = "$ref"
     schema = yaml.load(sys.stdin.read(), Loader=yaml.FullLoader)
+    if not "components" in schema:
+        schema["components"] = {}
+    if not "schemas" in schema["components"]:
+        schema["components"]["schemas"] = {}
 
     # Get list of refs
     refs = list(findKey(schema, key))
@@ -63,11 +69,7 @@ if __name__ == "__main__":
         if pathOk(path):
             continue
         (schemaSection, last) = findSchema(schema, path)
-        title = keyFor(last)
-        if not "components" in schema:
-            schema["components"] = {}
-        if not last in schema["components"]:
-            schema["components"][last] = {}
+        title = keyFor(path)
         schema["components"]["schemas"][title] = schemaSection[last]
         newPath = "#/components/schemas/%s" % title
 
