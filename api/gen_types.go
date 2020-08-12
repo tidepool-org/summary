@@ -7,7 +7,59 @@ import (
 	"time"
 )
 
-// SummaryResponse defines model for Summary response.
+// Quantile defines model for Quantile.
+type Quantile struct {
+
+	// The number of values below the threshold value.
+	Count *int `json:"count,omitempty"`
+
+	// The name of the quantile.
+	Name string `json:"name"`
+
+	// The percentage of samples below the threshold value.
+	Percentage float32 `json:"percentage"`
+
+	// The threshold of the quantile.
+	Threshold float32 `json:"threshold"`
+}
+
+// SummaryPeriod defines model for SummaryPeriod.
+type SummaryPeriod struct {
+
+	// The length of the period.
+	Length string `json:"length"`
+
+	// The start date of the period being reported.
+	Start time.Time `json:"start"`
+
+	// The time that these statistics were last updated for the given period.
+	Updated time.Time `json:"updated"`
+}
+
+// SummaryReport defines model for SummaryReport.
+type SummaryReport struct {
+
+	// Summary diabetes statistics metadata
+	Period SummaryPeriod `json:"period"`
+
+	// Summary diabetes statistics
+	Stats SummaryStatistics `json:"stats"`
+}
+
+// SummaryRequest defines model for SummaryRequest.
+type SummaryRequest struct {
+	Quantiles []struct {
+
+		// The name of the quantile.
+		Name string `json:"name"`
+
+		// The threshold value for the quantiles.  All samples must be below the threshold to be included in the count.
+		Threshold float32 `json:"threshold"`
+	} `json:"quantiles"`
+	Units UnitsOuej `json:"units"`
+}
+
+// SummaryResponse defines model for SummaryResponse.
 type SummaryResponse struct {
 
 	// A summary of which devices were used and when to upload diabetes data
@@ -56,63 +108,58 @@ type SummaryResponse struct {
 		} `json:"device,omitempty"`
 
 		// The time that that the device was last used to provide diabetes data
-		Event *struct {
-
-			// The time of the most recent upload.
-			Time time.Time `json:"time"`
-
-			// The data type that was uploaded.
-			Type string `json:"type"`
-		} `json:"event,omitempty"`
+		Event *UpdateEvent `json:"event,omitempty"`
 	} `json:"activity,omitempty"`
 
 	// Summary of recent glucose information.
-	Reports *[]struct {
-
-		// The date on which the summary was created.
-		Computed *time.Time `json:"computed,omitempty"`
-
-		// The date of the earliest sample included in the summary
-		EarliestDatum *time.Time `json:"earliestDatum,omitempty"`
-
-		// The date of the latest sample included in the summary
-		LatestDatum *time.Time `json:"latestDatum,omitempty"`
-
-		// The period over which the summary spans
-		Period *struct {
-
-			// The unit of measurement for the period
-			Units *string `json:"units,omitempty"`
-
-			// The number of units bounded by the summary
-			Value *int `json:"value,omitempty"`
-		} `json:"period,omitempty"`
-
-		// The summary statistics for the period given.
-		Stats *[]struct {
-
-			// Average glucose over samples in period
-			AverageGlucose *struct {
-				Units string `json:"units"`
-
-				// Average glucose value in units provided
-				Value float32 `json:"value"`
-			} `json:"averageGlucose,omitempty"`
-
-			// Percentage of samples in range
-			TimeInRange *struct {
-				Units string `json:"units"`
-
-				// The amount of time in range.
-				Value float32 `json:"value"`
-			} `json:"timeInRange,omitempty"`
-		} `json:"stats,omitempty"`
-	} `json:"reports,omitempty"`
-
-	// String representation of a Tidepool User ID
-	Userid *TidepoolUserID `json:"userid,omitempty"`
+	Reports []SummaryReport `json:"reports"`
+	Userid  string          `json:"userid"`
 }
 
-// TidepoolUserID defines model for Tidepool User ID.
-type TidepoolUserID string
+// SummaryStatistics defines model for SummaryStatistics.
+type SummaryStatistics struct {
+
+	// Total number of samples in period.
+	Count *int `json:"count,omitempty"`
+
+	// Mean glucose over samples in period
+	Mean *float32 `json:"mean,omitempty"`
+
+	// An array of quantile measurements.
+	Quantiles *[]Quantile `json:"quantiles,omitempty"`
+	Units     *UnitsOuej  `json:"units,omitempty"`
+}
+
+// UpdateEvent defines model for UpdateEvent.
+type UpdateEvent struct {
+
+	// The time of the most recent upload.
+	Time time.Time `json:"time"`
+
+	// The data type that was uploaded.
+	Type string `json:"type"`
+}
+
+// UnitsOuej defines model for units-ouej.
+type UnitsOuej string
+
+// List of UnitsOuej
+const (
+	UnitsOuej_mg_dL  UnitsOuej = "mg/dL"
+	UnitsOuej_mg_dl  UnitsOuej = "mg/dl"
+	UnitsOuej_mmol_L UnitsOuej = "mmol/L"
+	UnitsOuej_mmol_l UnitsOuej = "mmol/l"
+)
+
+// GetV1ClinicsCliniidSummaryJSONBody defines parameters for GetV1ClinicsCliniidSummary.
+type GetV1ClinicsCliniidSummaryJSONBody SummaryRequest
+
+// PostV1UsersUseridSummaryJSONBody defines parameters for PostV1UsersUseridSummary.
+type PostV1UsersUseridSummaryJSONBody SummaryRequest
+
+// GetV1ClinicsCliniidSummaryRequestBody defines body for GetV1ClinicsCliniidSummary for application/json ContentType.
+type GetV1ClinicsCliniidSummaryJSONRequestBody GetV1ClinicsCliniidSummaryJSONBody
+
+// PostV1UsersUseridSummaryRequestBody defines body for PostV1UsersUseridSummary for application/json ContentType.
+type PostV1UsersUseridSummaryJSONRequestBody PostV1UsersUseridSummaryJSONBody
 

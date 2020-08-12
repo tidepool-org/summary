@@ -1,5 +1,4 @@
 #!/bin/bash
-python3 cmd/fixYaml.py
 pip3 install PyYAML==5.1
 
 oapi-codegen  -generate=server summary.fixed.v1.yaml > api/gen_server.go

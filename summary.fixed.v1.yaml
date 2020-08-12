@@ -23,9 +23,129 @@ components:
       name: userId
       required: true
       schema:
-        $ref: '#/components/schemas/schema-nhyxoiyzss'
-  schema:
-    schema-ddhjvbnsst:
+        description: String representation of a Tidepool User ID
+        maxLength: 10
+        minLength: 10
+        pattern: ^[a-f0-9]{10}
+        title: Tidepool User ID
+        type: string
+  schemas:
+    Quantile:
+      additionalProperties: false
+      description: 'A quantile of samples.  Observe that the count is optional.  Some
+
+        implementation may not maintain exact counts.
+
+        '
+      properties:
+        count:
+          description: The number of values below the threshold value.
+          type: integer
+        name:
+          description: The name of the quantile.
+          type: string
+        percentage:
+          description: The percentage of samples below the threshold value.
+          format: float
+          maximum: 100
+          minimum: 0
+          type: number
+        threshold:
+          description: The threshold of the quantile.
+          format: float
+          maximum: 1000
+          minimum: 0
+          type: number
+      required:
+      - name
+      - threshold
+      - percentage
+      title: Quantile
+      type: object
+      x-examples:
+        example:
+          count: 2
+          name: veryLow
+          percentage: 0.0992
+          threshold: 54
+    SummaryPeriod:
+      additionalProperties: false
+      default: {}
+      description: Summary diabetes statistics metadata
+      properties:
+        length:
+          $id: '#/properties/period/properties/units'
+          default: ''
+          description: The length of the period.
+          enum:
+          - day
+          - week
+          examples:
+          - week
+          title: Period units
+          type: string
+        start:
+          description: The start date of the period being reported.
+          format: date-time
+          type: string
+        updated:
+          description: The time that these statistics were last updated for the given
+            period.
+          format: date-time
+          type: string
+      required:
+      - length
+      - start
+      - updated
+      title: Summary statistics metadata
+      type: object
+      x-examples:
+        example-1:
+          length: week
+          start: '2020-06-28T00:00:00Z'
+          updated: '2020-07-05T00:10:00Z'
+    SummaryReport:
+      additionalProperties: false
+      default: {}
+      description: Summary diabetes statistics
+      properties:
+        period:
+          $ref: '#/components/schemas/SummaryPeriod'
+        stats:
+          $ref: '#/components/schemas/SummaryStatistics'
+      required:
+      - period
+      - stats
+      title: Summary statistics
+      type: object
+      x-examples:
+        example-1:
+          period:
+            length: week
+            start: '2020-06-28T00:00:00Z'
+            updated: '2020-07-05T00:10:00Z'
+          stats:
+            count: 2016
+            mean: 107
+            quantiles:
+            - count: 2
+              name: veryLow
+              percentage: 0.0992
+              threshold: 54
+            - count: 202
+              name: low
+              percentage: 10.0198
+              threshold: 80
+            - count: 2011
+              name: high
+              percentage: 99.752
+              threshold: 180
+            - count: 2016
+              name: veryHigh
+              percentage: 100
+              threshold: 250
+            units: mg/dl
+    SummaryRequest:
       additionalProperties: false
       default: {}
       description: "Request a set of named quantiles.  The named quantiles MUST include\
@@ -50,20 +170,13 @@ components:
             type: object
           type: array
         units:
-          $ref: '#/components/schemas/units-cligknjswi'
+          $ref: '#/components/schemas/units-ouej'
       required:
       - units
       - quantiles
       title: Summary request
       type: object
-    schema-nhyxoiyzss:
-      description: String representation of a Tidepool User ID
-      maxLength: 10
-      minLength: 10
-      pattern: ^[a-f0-9]{10}
-      title: Tidepool User ID
-      type: string
-    schema-qhtpcjhgoz:
+    SummaryResponse:
       additionalProperties: false
       default: {}
       description: 'A summary of the most recent diabetes data for a set of users. '
@@ -182,40 +295,7 @@ components:
                 title: Upload Device
                 type: object
               event:
-                additionalProperties: false
-                default: {}
-                description: The time that that the device was last used to provide
-                  diabetes data
-                properties:
-                  time:
-                    $id: '#/properties/time'
-                    default: ''
-                    description: The time of the most recent upload.
-                    examples:
-                    - '2020-06-20T14:20:02Z'
-                    format: date-time
-                    title: Last Upload Time
-                    type: string
-                  type:
-                    $id: '#/properties/type'
-                    default: ''
-                    description: The data type that was uploaded.
-                    enum:
-                    - smbg
-                    - cbg
-                    examples:
-                    - smbg
-                    title: Uploaded Data Type
-                    type: string
-                required:
-                - type
-                - time
-                title: Last Update Time
-                type: object
-                x-examples:
-                  example-1:
-                    time: '2020-07-06T08:29:02Z'
-                    type: smbg
+                $ref: '#/components/schemas/UpdateEvent'
             title: Recent Upload Activity
             type: object
           title: Recent Upload Activity Summary
@@ -223,90 +303,11 @@ components:
         reports:
           description: Summary of recent glucose information.
           items:
-            additionalProperties: false
-            default: {}
-            description: Summary diabetes statistics
-            properties:
-              count:
-                description: Total number of samples in period.
-                minimum: 0
-                type: integer
-              mean:
-                description: Mean glucose over samples in period
-                title: Mean glucose
-                type: number
-              quantiles:
-                description: An array of quantile measurements.
-                items:
-                  additionalProperties: false
-                  description: 'A quantile of samples.  Observe that the count is
-                    optional.  Some
-
-                    implementation may not maintain exact counts.
-
-                    '
-                  properties:
-                    count:
-                      description: The number of values below the threshold value.
-                      type: integer
-                    name:
-                      description: The name of the quantile.
-                      type: string
-                    percentage:
-                      description: The percentage of samples below the threshold value.
-                      format: float
-                      maximum: 100
-                      minimum: 0
-                      type: number
-                    threshold:
-                      description: The threshold of the quantile.
-                      format: float
-                      maximum: 1000
-                      minimum: 0
-                      type: number
-                  required:
-                  - name
-                  - threshold
-                  - percentage
-                  title: Quantile
-                  type: object
-                  x-examples:
-                    example:
-                      count: 2
-                      name: veryLow
-                      percentage: 0.0992
-                      threshold: 54
-                type: array
-              units:
-                $ref: '#/components/schemas/units-cligknjswi'
-            title: Summary statistics
-            type: object
-            x-examples:
-              example-1:
-                count: 2016
-                mean: 107
-                quantiles:
-                - count: 2
-                  name: veryLow
-                  percentage: 0.0992
-                  threshold: 54
-                - count: 202
-                  name: low
-                  percentage: 10.0198
-                  threshold: 80
-                - count: 2011
-                  name: high
-                  percentage: 99.752
-                  threshold: 180
-                - count: 2016
-                  name: veryHigh
-                  percentage: 100
-                  threshold: 250
-                units: mg/dl
+            $ref: '#/components/schemas/SummaryReport'
           title: Recent Statisical Summaries
           type: array
         userid:
-          $ref: '#/components/schemas/schema-nhyxoiyzss'
+          type: string
       required:
       - reports
       - userid
@@ -378,7 +379,95 @@ components:
                 percentage: 100
                 threshold: 250
               units: mg/dl
-  schemas: {}
+    SummaryStatistics:
+      additionalProperties: false
+      default: {}
+      description: Summary diabetes statistics
+      properties:
+        count:
+          description: Total number of samples in period.
+          minimum: 0
+          type: integer
+        mean:
+          description: Mean glucose over samples in period
+          title: Mean glucose
+          type: number
+        quantiles:
+          description: An array of quantile measurements.
+          items:
+            $ref: '#/components/schemas/Quantile'
+          type: array
+        units:
+          $ref: '#/components/schemas/units-ouej'
+      title: Summary statistics
+      type: object
+      x-examples:
+        example-1:
+          count: 2016
+          mean: 107
+          quantiles:
+          - count: 2
+            name: veryLow
+            percentage: 0.0992
+            threshold: 54
+          - count: 202
+            name: low
+            percentage: 10.0198
+            threshold: 80
+          - count: 2011
+            name: high
+            percentage: 99.752
+            threshold: 180
+          - count: 2016
+            name: veryHigh
+            percentage: 100
+            threshold: 250
+          units: mg/dl
+    UpdateEvent:
+      additionalProperties: false
+      default: {}
+      description: The time that that the device was last used to provide diabetes
+        data
+      properties:
+        time:
+          $id: '#/properties/time'
+          default: ''
+          description: The time of the most recent upload.
+          examples:
+          - '2020-06-20T14:20:02Z'
+          format: date-time
+          title: Last Upload Time
+          type: string
+        type:
+          $id: '#/properties/type'
+          default: ''
+          description: The data type that was uploaded.
+          enum:
+          - smbg
+          - cbg
+          examples:
+          - smbg
+          title: Uploaded Data Type
+          type: string
+      required:
+      - type
+      - time
+      title: Last Update Time
+      type: object
+      x-examples:
+        example-1:
+          time: '2020-07-06T08:29:02Z'
+          type: smbg
+    units-ouej:
+      enum:
+      - mmol/L
+      - mmol/l
+      - mg/dL
+      - mg/dl
+      title: Blood Glucose Units
+      type: string
+      x-tags:
+      - data
   securitySchemes:
     bearerToken:
       description: ''
@@ -393,17 +482,7 @@ components:
       in: header
       name: x-tidepool-session-token
       type: apiKey
-  units:
-    units-cligknjswi:
-      enum:
-      - mmol/L
-      - mmol/l
-      - mg/dL
-      - mg/dl
-      title: Blood Glucose Units
-      type: string
-      x-tags:
-      - data
+  units: {}
 info:
   contact:
     email: support@tidepool.org
@@ -432,7 +511,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/schema-ddhjvbnsst'
+              $ref: '#/components/schemas/SummaryRequest'
       responses:
         '200':
           content:
@@ -440,7 +519,7 @@ paths:
               examples: {}
               schema:
                 items:
-                  $ref: '#/components/schemas/schema-qhtpcjhgoz'
+                  $ref: '#/components/schemas/SummaryResponse'
                 type: array
           description: OK
       security:
@@ -461,13 +540,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/schema-ddhjvbnsst'
+              $ref: '#/components/schemas/SummaryRequest'
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/schema-qhtpcjhgoz'
+                $ref: '#/components/schemas/SummaryResponse'
           description: OK
       summary: ''
       tags: []

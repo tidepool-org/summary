@@ -1,17 +1,17 @@
 #!/usr/local/bin/python3
 
-import yaml
-from urllib.parse import unquote
-import sys
 import random
 import string
+import sys
+from urllib.parse import unquote
 
-inFilename = 'summary.v1.yaml'
-outFilename = 'summary.fixed.v1.yaml'
+import yaml
+
 
 def keyFor(name):
     letters = string.ascii_lowercase
-    return name + '-' + ''.join(random.choice(letters) for i in range(10))
+    return name + '-' + ''.join(random.choice(letters) for i in range(4))
+
 
 def findKey(d, key):
     if isinstance(d, dict):
@@ -23,44 +23,64 @@ def findKey(d, key):
         for val in d:
             yield from findKey(val, key)
 
+
 def findSchema(d, path):
     parts = path.split("/")
+    print(parts)
     for p in parts[1:-1]:
-        d = d[p.replace("~1", "/")]
+        key = p.replace("~1", "/")
+        print(key)
+        if key not in d:
+            print(d)
+        d = d[key]
     return (d, parts[-1])
+
+
+def pathOk(path):
+    parts = path.split("/")
+    if len(parts) != 4:
+        return False
+    if parts[0] != "#":
+        return False
+    if parts[1] != "components":
+        return False
+    if parts[2] != "schemas":
+        return False
+    return True
+
 
 if __name__ == "__main__":
     key = "$ref"
-    with open(inFilename) as file:
-        schema = yaml.load(file, Loader=yaml.FullLoader)
+    schema = yaml.load(sys.stdin.read(), Loader=yaml.FullLoader)
 
-        # Get list of refs
-        refs = list(findKey(schema, key))
+    # Get list of refs
+    refs = list(findKey(schema, key))
 
-        # Get distinct list of schema paths
-        schemaPaths = []
+    # Get distinct list of schema paths
+    schemaPaths = []
+    for ref in refs:
+        print(ref)
+        if unquote(ref[key]) not in schemaPaths:
+            schemaPaths.append(unquote(ref[key]))
+
+    # Move ref to components section
+    for path in sorted(schemaPaths, key=len):
+        if pathOk(path):
+            continue
+        (schemaSection, last) = findSchema(schema, path)
+        title = keyFor(last)
+        if not "components" in schema:
+            schema["components"] = {}
+        if not last in schema["components"]:
+            schema["components"][last] = {}
+        schema["components"]["schemas"][title] = schemaSection[last]
+        newPath = "#/components/schemas/%s" % title
+
+        # update all refs for this path
         for ref in refs:
-            print(ref)
-            if unquote(ref[key]) not in schemaPaths:
-                schemaPaths.append(unquote(ref[key]))
+            if unquote(ref[key]) == path:
+                ref[key] = newPath
 
-        # Move ref to components section
-        for path in schemaPaths:
-            (schemaSection, last) = findSchema(schema, path)
-            title = keyFor(last)
-            if not "components" in schema:
-                    schema["components"] = {}
-            if not last in schema["components"]:
-                schema["components"][last] = {}
-            schema["components"][last][title] = schemaSection[last]
-            newPath = "#/components/schemas/%s" % title
+        schemaSection[last] = {"$ref": newPath}
 
-            # update all refs for this path
-            for ref in refs:
-                if unquote(ref[key]) == path:
-                    ref[key] = newPath
-
-            schemaSection[last] = {"$ref": newPath}
-
-        with open(outFilename, 'w') as outfile:
-            documents = yaml.dump(schema, outfile)
+    documents = yaml.dump(schema)

@@ -13,11 +13,11 @@ import (
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Retrieve summaries for all patients of a clinic
-	// (GET /v1/clinics/{clinicid}/summaries)
+	// (POST /v1/clinics/{clinicid}/summaries)
 	GetV1ClinicsCliniidSummary(ctx echo.Context, clinicid string) error
-	// Retrieve summary data for user
-	// (GET /v1/users/{userid}/summary)
-	GetV1UsersUseridSummary(ctx echo.Context, userid string) error
+
+	// (POST /v1/users/{userid}/summary)
+	PostV1UsersUseridSummary(ctx echo.Context, userid string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -43,8 +43,8 @@ func (w *ServerInterfaceWrapper) GetV1ClinicsCliniidSummary(ctx echo.Context) er
 	return err
 }
 
-// GetV1UsersUseridSummary converts echo context to params.
-func (w *ServerInterfaceWrapper) GetV1UsersUseridSummary(ctx echo.Context) error {
+// PostV1UsersUseridSummary converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV1UsersUseridSummary(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "userid" -------------
 	var userid string
@@ -54,10 +54,8 @@ func (w *ServerInterfaceWrapper) GetV1UsersUseridSummary(ctx echo.Context) error
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter userid: %s", err))
 	}
 
-	ctx.Set("sessionToken.Scopes", []string{""})
-
 	// Invoke the callback with all the unmarshalled arguments
-	err = w.Handler.GetV1UsersUseridSummary(ctx, userid)
+	err = w.Handler.PostV1UsersUseridSummary(ctx, userid)
 	return err
 }
 
@@ -83,8 +81,8 @@ func RegisterHandlers(router EchoRouter, si ServerInterface) {
 		Handler: si,
 	}
 
-	router.GET("/v1/clinics/:clinicid/summaries", wrapper.GetV1ClinicsCliniidSummary)
-	router.GET("/v1/users/:userid/summary", wrapper.GetV1UsersUseridSummary)
+	router.POST("/v1/clinics/:clinicid/summaries", wrapper.GetV1ClinicsCliniidSummary)
+	router.POST("/v1/users/:userid/summary", wrapper.PostV1UsersUseridSummary)
 
 }
 
