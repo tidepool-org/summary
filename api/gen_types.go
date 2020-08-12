@@ -56,8 +56,19 @@ type SummaryRequest struct {
 		// The threshold value for the quantiles.  All samples must be below the threshold to be included in the count.
 		Threshold float32 `json:"threshold"`
 	} `json:"quantiles"`
-	Units ComponentsSchemasSummaryRequestPropertiesUnits `json:"units"`
+	Units SummaryRequestPropertiesUnits `json:"units"`
 }
+
+// SummaryRequestPropertiesUnits defines model for SummaryRequest-properties-units.
+type SummaryRequestPropertiesUnits string
+
+// List of SummaryRequestPropertiesUnits
+const (
+	SummaryRequestPropertiesUnits_mg_dL  SummaryRequestPropertiesUnits = "mg/dL"
+	SummaryRequestPropertiesUnits_mg_dl  SummaryRequestPropertiesUnits = "mg/dl"
+	SummaryRequestPropertiesUnits_mmol_L SummaryRequestPropertiesUnits = "mmol/L"
+	SummaryRequestPropertiesUnits_mmol_l SummaryRequestPropertiesUnits = "mmol/l"
+)
 
 // SummaryResponse defines model for SummaryResponse.
 type SummaryResponse struct {
@@ -115,7 +126,7 @@ type SummaryResponse struct {
 	Reports []SummaryReport `json:"reports"`
 
 	// String representation of a Tidepool User ID
-	Userid ComponentsParametersUserIdSchema `json:"userid"`
+	Userid UserId `json:"userid"`
 }
 
 // SummaryStatistics defines model for SummaryStatistics.
@@ -128,8 +139,8 @@ type SummaryStatistics struct {
 	Mean *float32 `json:"mean,omitempty"`
 
 	// An array of quantile measurements.
-	Quantiles *[]Quantile                                     `json:"quantiles,omitempty"`
-	Units     *ComponentsSchemasSummaryRequestPropertiesUnits `json:"units,omitempty"`
+	Quantiles *[]Quantile                    `json:"quantiles,omitempty"`
+	Units     *SummaryRequestPropertiesUnits `json:"units,omitempty"`
 }
 
 // UpdateEvent defines model for UpdateEvent.
@@ -142,19 +153,8 @@ type UpdateEvent struct {
 	Type string `json:"type"`
 }
 
-// ComponentsParametersUserIdSchema defines model for components-parameters-userId-schema.
-type ComponentsParametersUserIdSchema string
-
-// ComponentsSchemasSummaryRequestPropertiesUnits defines model for components-schemas-SummaryRequest-properties-units.
-type ComponentsSchemasSummaryRequestPropertiesUnits string
-
-// List of ComponentsSchemasSummaryRequestPropertiesUnits
-const (
-	ComponentsSchemasSummaryRequestPropertiesUnits_mg_dL  ComponentsSchemasSummaryRequestPropertiesUnits = "mg/dL"
-	ComponentsSchemasSummaryRequestPropertiesUnits_mg_dl  ComponentsSchemasSummaryRequestPropertiesUnits = "mg/dl"
-	ComponentsSchemasSummaryRequestPropertiesUnits_mmol_L ComponentsSchemasSummaryRequestPropertiesUnits = "mmol/L"
-	ComponentsSchemasSummaryRequestPropertiesUnits_mmol_l ComponentsSchemasSummaryRequestPropertiesUnits = "mmol/l"
-)
+// UserId defines model for userId.
+type UserId string
 
 // GetV1ClinicsCliniidSummaryJSONBody defines parameters for GetV1ClinicsCliniidSummary.
 type GetV1ClinicsCliniidSummaryJSONBody SummaryRequest
