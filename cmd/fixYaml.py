@@ -1,18 +1,18 @@
 #!/usr/local/bin/python3
 
-import random
-import string
 import sys
 from urllib.parse import unquote
 
 import yaml
 
+unnamed = 0
 
 def keyFor(path):
+    global unnamed
     parts = path.split("/")
-    name = parts[-1]
-    letters = string.ascii_lowercase
-    return name + '-' + ''.join(random.choice(letters) for i in range(4))
+    name = parts[-1] + "-" + str(unnamed)
+    unnamed = unnamed + 1
+    return name
 
 
 def findKey(d, key):
@@ -80,4 +80,6 @@ if __name__ == "__main__":
 
         schemaSection[last] = {"$ref": newPath}
 
-    documents = yaml.dump(schema)
+    print(schema)
+
+    yaml.dump(schema, sys.stdout)
