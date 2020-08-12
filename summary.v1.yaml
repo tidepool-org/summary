@@ -1,0 +1,442 @@
+openapi: 3.0.0
+tags:
+  - name: summary
+    description: Tidepool Summary
+info:
+  description: Summary service
+  title: Summary
+  version: '1.0'
+  contact:
+    name: API Support
+    url: 'https://support.tidepool.org/'
+    email: support@tidepool.org
+  termsOfService: 'https://developer.tidepool.org/terms-of-use/'
+  license:
+    name: 'BSD 2-Clause "Simplified" License'
+    url: 'https://github.com/tidepool-org/platform/blob/master/LICENSE'
+servers:
+  - url: 'http://localhost:3000'
+    description: localhost
+  - url: 'https://qa1.development.tidepool.org'
+    description: qa1
+  - url: 'https://qa2.development.tidepool.org'
+    description: qa2
+  - url: 'https://integration.external.tidepool.org'
+    description: integration
+  - url: 'https://api.tidepool.org'
+    description: production
+paths:
+  '/v1/users/{userid}/summary':
+    parameters:
+      - schema:
+          type: string
+        name: userid
+        in: path
+        required: true
+    post:
+      tags: []
+      summary: ''
+      operationId: post-v1-users-userid-summary
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Summary response
+                description: 'A summary of the most recent diabetes data for a set of users. '
+                default: {}
+                additionalProperties: false
+                x-examples:
+                  example-1:
+                    activity:
+                      - client:
+                          name: Tidepool Uploader
+                          version: 1.23.4
+                          platform: macOS 10.15.4
+                        device:
+                          deviceManufacturers:
+                            - Bayer
+                          deviceName: Ascensia Contour Next One
+                          deviceSerialNumber: '123456'
+                        event:
+                          type: smbg
+                          time: '2020-07-06T08:29:02Z'
+                    reports:
+                      - period:
+                          start: '2020-07-05T00:00:00Z'
+                          length: week
+                          updated: '2020-07-011T08:29:02Z'
+                        stats:
+                          count: 1860
+                          mean: 110
+                          units: mg/dl
+                          quantiles:
+                            - name: veryLow
+                              threshold: 54
+                              percentage: 0.1075
+                              count: 2
+                            - name: low
+                              threshold: 80
+                              percentage: 2.1505
+                              count: 40
+                            - name: high
+                              threshold: 180
+                              percentage: 90.4266
+                              count: 1823
+                            - name: veryHigh
+                              threshold: 250
+                              percentage: 90.4266
+                              count: 1823
+                      - period:
+                          start: '2020-06-28T00:00:00Z'
+                          length: week
+                          updated: '2020-07-05T00:10:00Z'
+                        stats:
+                          count: 2016
+                          mean: 107
+                          units: mg/dl
+                          quantiles:
+                            - name: veryLow
+                              threshold: 54
+                              percentage: 0.0992
+                              count: 2
+                            - name: low
+                              threshold: 80
+                              percentage: 10.0198
+                              count: 202
+                            - name: high
+                              threshold: 180
+                              percentage: 99.752
+                              count: 2011
+                            - name: veryHigh
+                              threshold: 250
+                              percentage: 100
+                              count: 2016
+                properties:
+                  activity:
+                    $id: '#/properties/activity'
+                    type: array
+                    title: Recent Upload Activity Summary
+                    description: A summary of which devices were used and when to upload diabetes data
+                    default: []
+                    additionalItems: false
+                    items:
+                      type: object
+                      title: Recent Upload Activity
+                      description: A report on when a diabetes device was most recently used
+                      additionalProperties: false
+                      properties:
+                        client:
+                          type: object
+                          title: Diabetes client software package
+                          description: The client software that provided diabetes data
+                          properties:
+                            name:
+                              type: string
+                              title: Client software name
+                              description: The name of the client software used to extract the data
+                              pattern: "^[a-zA-Z0-9](|[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])(\\.[a-zA-Z0-9](|[a-zA-Z0-9-]{0,61}[a-zA-Z0-9]))+$"
+                            version:
+                              type: string
+                              title: Client software version
+                              description: The version of the client software used to extract the data
+                              pattern: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-(0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(\\.(0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\\+[0-9a-zA-Z-]+(\\.[0-9a-zA-Z-]+)*)?$"
+                            platform:
+                              type: string
+                              title: Client software platform
+                              description: The software platform on which the client software was run
+                              examples:
+                                - macOS 10.15.4
+                            private:
+                              title: Metadata
+                              type: object
+                              properties: {}
+                              x-tags:
+                                - data
+                          x-examples:
+                            example-1:
+                              name: Tidepool Uploader
+                              version: 1.23.4
+                              platform: macOS 10.15.4
+                        device:
+                          type: object
+                          title: Upload Device
+                          description: The device used to provide diabetes data
+                          default: {}
+                          additionalProperties: false
+                          properties:
+                            deviceManufacturers:
+                              type: array
+                              description: |-
+                                An array of string tags indicating the manufacturer(s) of the device.
+
+                                In order to avoid confusion resulting from referring to a single manufacturer with more than one name—for example, using both 'Minimed' and 'Medtronic' interchangeably—we restrict the set of strings used to refer to manufacturers to the set listed above and enforce *exact* string matches (including casing).
+
+                                `deviceManufacturers` is an array of one or more string "tags" because there are devices resulting from a collaboration between more than one manufacturer, such as the Tandem G4 insulin pump with CGM integration (a collaboration between `Tandem` and `Dexcom`).
+                              items:
+                                type: string
+                            deviceModel:
+                              type: string
+                              description: |-
+                                A string identifying the model of the device.
+
+                                The `deviceModel` is a non-empty string that encodes the model of device. We endeavor to match each manufacturer's standard for how they represent model name in terms of casing, whether parts of the name are represented as one word or two, etc.
+                            deviceSerialNumber:
+                              type: string
+                              description: |-
+                                A string encoding the device's serial number.
+
+                                The `deviceSerialNumber` is a string that encodes the serial number of the device. Note that even if a manufacturer only uses digits in its serial numbers, the SN should be stored as a string regardless.
+
+                                Uniquely of string fields in the Tidepool device data models, `deviceSerialNumber` *may* be an empty string. This is essentially a compromise: having the device serial number is extremely important (especially for e.g., clinical studies) but in 2016 we came across our first case where we *cannot* recover the serial number of the device that generated the data: Dexcom G5 data uploaded to Tidepool through Apple iOS's HealthKit integration.
+                            deviceTags:
+                              type: array
+                              description: |-
+                                An array of string tags indicating the function(s) of the device.
+
+                                The `deviceTags` array should be fairly self-explanatory as an array of tags indicating the function(s) of a particular device. For example, the Insulet OmniPod insulin delivery system has the tags `bgm` and `insulin-pump` since the PDM is both an insulin pump controller and includes a built-in blood glucose monitor.
+                              items:
+                                anyOf:
+                                  - enum:
+                                      - bgm
+                                      - cgm
+                                      - insulin-pump
+                                type: string
+                        event:
+                          type: object
+                          title: Last Update Time
+                          description: The time that that the device was last used to provide diabetes data
+                          default: {}
+                          additionalProperties: false
+                          x-examples:
+                            example-1:
+                              type: smbg
+                              time: '2020-07-06T08:29:02Z'
+                          properties:
+                            type:
+                              $id: '#/properties/type'
+                              type: string
+                              enum:
+                                - smbg
+                                - cbg
+                              title: Uploaded Data Type
+                              description: The data type that was uploaded.
+                              default: ''
+                              examples:
+                                - smbg
+                            time:
+                              $id: '#/properties/time'
+                              type: string
+                              format: date-time
+                              title: Last Upload Time
+                              description: The time of the most recent upload.
+                              default: ''
+                              examples:
+                                - '2020-06-20T14:20:02Z'
+                          required:
+                            - type
+                            - time
+                  reports:
+                    type: array
+                    title: Recent Statisical Summaries
+                    description: Summary of recent glucose information.
+                    items:
+                      type: object
+                      title: Summary statistics
+                      description: Summary diabetes statistics
+                      default: {}
+                      additionalProperties: false
+                      x-examples:
+                        example-1:
+                          count: 2016
+                          mean: 107
+                          units: mg/dl
+                          quantiles:
+                            - name: veryLow
+                              threshold: 54
+                              percentage: 0.0992
+                              count: 2
+                            - name: low
+                              threshold: 80
+                              percentage: 10.0198
+                              count: 202
+                            - name: high
+                              threshold: 180
+                              percentage: 99.752
+                              count: 2011
+                            - name: veryHigh
+                              threshold: 250
+                              percentage: 100
+                              count: 2016
+                      properties:
+                        mean:
+                          type: number
+                          title: Mean glucose
+                          description: Mean glucose over samples in period
+                        units:
+                          $ref: '#/paths/~1v1~1users~1%7Buserid%7D~1summary/post/requestBody/content/application~1json/schema/properties/units'
+                        count:
+                          type: integer
+                          minimum: 0
+                          description: Total number of samples in period.
+                        quantiles:
+                          type: array
+                          description: An array of quantile measurements.
+                          items:
+                            type: object
+                            title: Quantile
+                            description: |
+                              A quantile of samples.  Observe that the count is optional.  Some
+                              implementation may not maintain exact counts.
+                            additionalProperties: false
+                            x-examples:
+                              example:
+                                name: veryLow
+                                threshold: 54
+                                percentage: 0.0992
+                                count: 2
+                            properties:
+                              name:
+                                type: string
+                                description: The name of the quantile.
+                              threshold:
+                                type: number
+                                description: The threshold of the quantile.
+                                format: float
+                                minimum: 0
+                                maximum: 1000
+                              percentage:
+                                type: number
+                                description: The percentage of samples below the threshold value.
+                                format: float
+                                minimum: 0
+                                maximum: 100
+                              count:
+                                type: integer
+                                description: The number of values below the threshold value.
+                            required:
+                              - name
+                              - threshold
+                              - percentage
+                  userid:
+                    $ref: '#/components/parameters/userId/schema'
+                required:
+                  - reports
+                  - userid
+      description: Retrieve summary information
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: Summary request
+              description: "Request a set of named quantiles.  The named quantiles MUST include the names: \"veryHigh\", \"high\", \"low\", \"veryLow\". Other named quantiles MAY be provided. \n"
+              default: {}
+              additionalProperties: false
+              type: object
+              properties:
+                units:
+                  type: string
+                  title: Blood Glucose Units
+                  enum:
+                    - mmol/L
+                    - mmol/l
+                    - mg/dL
+                    - mg/dl
+                  x-tags:
+                    - data
+                quantiles:
+                  type: array
+                  items:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      name:
+                        type: string
+                        description: The name of the quantile.
+                      threshold:
+                        type: number
+                        description: The threshold value for the quantiles.  All samples must be below the threshold to be included in the count.
+                        format: float
+                    required:
+                      - name
+                      - threshold
+              required:
+                - units
+                - quantiles
+  '/v1/clinics/{clinicid}/summaries':
+    parameters:
+      - schema:
+          type: string
+        name: clinicid
+        in: path
+        required: true
+    post:
+      summary: Retrieve summaries for all patients of a clinic
+      security:
+        - sessionToken: []
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/paths/~1v1~1users~1%7Buserid%7D~1summary/post/responses/200/content/application~1json/schema'
+              examples: {}
+      operationId: get-v1-clinics-cliniid-summary
+      description: Return summary information for all patients of a clinic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/paths/~1v1~1users~1%7Buserid%7D~1summary/post/requestBody/content/application~1json/schema'
+components:
+  schemas: {}
+  securitySchemes:
+    serverSecret:
+      name: x-tidepool-server-secret
+      type: apiKey
+      in: header
+    sessionToken:
+      name: x-tidepool-session-token
+      type: apiKey
+      in: header
+      description: ''
+    bearerToken:
+      type: http
+      scheme: bearer
+      description: ''
+  headers:
+    x-tidepool-session-token:
+      schema:
+        type: string
+        title: Tidepool Session Token
+        pattern: "^[a-zA-Z0-9\\-_]+?\\.[a-zA-Z0-9\\-_]+?\\.([a-zA-Z0-9\\-_]+)?$"
+      description: A Tidepool session token
+  parameters:
+    userId:
+      name: userId
+      in: path
+      schema:
+        type: string
+        title: Tidepool User ID
+        minLength: 10
+        maxLength: 10
+        pattern: '^[a-f0-9]{10}'
+        description: String representation of a Tidepool User ID
+      required: true
+    deviceAuthorizationId:
+      name: deviceAuthorizationId
+      schema:
+        title: Device Authorization Id
+        type: string
+        description: BSON ObjectId
+        minLength: 24
+        maxLength: 24
+        pattern: '^[a-f0-9]{24}'
+      required: true
+      in: path
