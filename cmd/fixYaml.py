@@ -5,16 +5,10 @@ from urllib.parse import unquote
 
 import yaml
 
-unnamed = 0
-
 omit=frozenset([ "#", "components", "schemas", "schema", "parameters", "properties"])
 
 def keyFor(path):
-    global unnamed
     parts = path.split("/")
-    name = parts[-1] + "-" + str(unnamed)
-    unnamed = unnamed + 1
-    print(parts, file=sys.stderr)
     filtered=filter(lambda x: x not in omit, parts)
     return "-".join(filtered)
 
