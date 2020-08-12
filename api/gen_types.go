@@ -56,18 +56,18 @@ type SummaryRequest struct {
 		// The threshold value for the quantiles.  All samples must be below the threshold to be included in the count.
 		Threshold float32 `json:"threshold"`
 	} `json:"quantiles"`
-	Units SummaryRequestPropertiesUnits `json:"units"`
+	Units SummaryRequestUnits `json:"units"`
 }
 
-// SummaryRequestPropertiesUnits defines model for SummaryRequest-properties-units.
-type SummaryRequestPropertiesUnits string
+// SummaryRequestUnits defines model for SummaryRequest-units.
+type SummaryRequestUnits string
 
-// List of SummaryRequestPropertiesUnits
+// List of SummaryRequestUnits
 const (
-	SummaryRequestPropertiesUnits_mg_dL  SummaryRequestPropertiesUnits = "mg/dL"
-	SummaryRequestPropertiesUnits_mg_dl  SummaryRequestPropertiesUnits = "mg/dl"
-	SummaryRequestPropertiesUnits_mmol_L SummaryRequestPropertiesUnits = "mmol/L"
-	SummaryRequestPropertiesUnits_mmol_l SummaryRequestPropertiesUnits = "mmol/l"
+	SummaryRequestUnits_mg_dL  SummaryRequestUnits = "mg/dL"
+	SummaryRequestUnits_mg_dl  SummaryRequestUnits = "mg/dl"
+	SummaryRequestUnits_mmol_L SummaryRequestUnits = "mmol/L"
+	SummaryRequestUnits_mmol_l SummaryRequestUnits = "mmol/l"
 )
 
 // SummaryResponse defines model for SummaryResponse.
@@ -139,8 +139,8 @@ type SummaryStatistics struct {
 	Mean *float32 `json:"mean,omitempty"`
 
 	// An array of quantile measurements.
-	Quantiles *[]Quantile                    `json:"quantiles,omitempty"`
-	Units     *SummaryRequestPropertiesUnits `json:"units,omitempty"`
+	Quantiles *[]Quantile          `json:"quantiles,omitempty"`
+	Units     *SummaryRequestUnits `json:"units,omitempty"`
 }
 
 // UpdateEvent defines model for UpdateEvent.

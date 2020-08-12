@@ -165,13 +165,13 @@ components:
             type: object
           type: array
         units:
-          $ref: '#/components/schemas/SummaryRequest-properties-units'
+          $ref: '#/components/schemas/SummaryRequest-units'
       required:
       - units
       - quantiles
       title: Summary request
       type: object
-    SummaryRequest-properties-units:
+    SummaryRequest-units:
       enum:
       - mmol/L
       - mmol/l
@@ -403,7 +403,7 @@ components:
             $ref: '#/components/schemas/Quantile'
           type: array
         units:
-          $ref: '#/components/schemas/SummaryRequest-properties-units'
+          $ref: '#/components/schemas/SummaryRequest-units'
       title: Summary statistics
       type: object
       x-examples:

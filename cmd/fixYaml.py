@@ -7,7 +7,7 @@ import yaml
 
 unnamed = 0
 
-omit=frozenset([ "#", "components", "schemas", "schema", "parameters"])
+omit=frozenset([ "#", "components", "schemas", "schema", "parameters", "properties"])
 
 def keyFor(path):
     global unnamed
