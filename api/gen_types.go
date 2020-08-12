@@ -56,7 +56,7 @@ type SummaryRequest struct {
 		// The threshold value for the quantiles.  All samples must be below the threshold to be included in the count.
 		Threshold float32 `json:"threshold"`
 	} `json:"quantiles"`
-	Units UnitsOuej `json:"units"`
+	Units Units0 `json:"units"`
 }
 
 // SummaryResponse defines model for SummaryResponse.
@@ -127,7 +127,7 @@ type SummaryStatistics struct {
 
 	// An array of quantile measurements.
 	Quantiles *[]Quantile `json:"quantiles,omitempty"`
-	Units     *UnitsOuej  `json:"units,omitempty"`
+	Units     *Units0     `json:"units,omitempty"`
 }
 
 // UpdateEvent defines model for UpdateEvent.
@@ -140,15 +140,15 @@ type UpdateEvent struct {
 	Type string `json:"type"`
 }
 
-// UnitsOuej defines model for units-ouej.
-type UnitsOuej string
+// Units0 defines model for units-0.
+type Units0 string
 
-// List of UnitsOuej
+// List of Units0
 const (
-	UnitsOuej_mg_dL  UnitsOuej = "mg/dL"
-	UnitsOuej_mg_dl  UnitsOuej = "mg/dl"
-	UnitsOuej_mmol_L UnitsOuej = "mmol/L"
-	UnitsOuej_mmol_l UnitsOuej = "mmol/l"
+	Units0_mg_dL  Units0 = "mg/dL"
+	Units0_mg_dl  Units0 = "mg/dl"
+	Units0_mmol_L Units0 = "mmol/L"
+	Units0_mmol_l Units0 = "mmol/l"
 )
 
 // GetV1ClinicsCliniidSummaryJSONBody defines parameters for GetV1ClinicsCliniidSummary.

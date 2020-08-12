@@ -80,6 +80,4 @@ if __name__ == "__main__":
 
         schemaSection[last] = {"$ref": newPath}
 
-    print(schema)
-
     yaml.dump(schema, sys.stdout)
