@@ -26,12 +26,8 @@ def findKey(d, key):
 
 def findSchema(d, path):
     parts = path.split("/")
-    print(parts)
     for p in parts[1:-1]:
         key = p.replace("~1", "/")
-        print(key)
-        if key not in d:
-            print(d)
         d = d[key]
     return (d, parts[-1])
 
@@ -59,7 +55,6 @@ if __name__ == "__main__":
     # Get distinct list of schema paths
     schemaPaths = []
     for ref in refs:
-        print(ref)
         if unquote(ref[key]) not in schemaPaths:
             schemaPaths.append(unquote(ref[key]))
 
