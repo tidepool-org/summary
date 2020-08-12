@@ -3,7 +3,7 @@ module github.com/tidepool-org/clinic
 go 1.13
 
 require (
-	github.com/deepmap/oapi-codegen v1.3.11 // indirect
+	github.com/deepmap/oapi-codegen v1.3.11
 	github.com/getkin/kin-openapi v0.13.0
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/onsi/ginkgo v1.12.0

@@ -72,7 +72,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/SummaryResponse'
               examples: {}
-      operationId: get-v1-clinics-cliniid-summary
+      operationId: post-v1-clinics-cliniid-summary
       description: Return summary information for all patients of a clinic
       requestBody:
         content:

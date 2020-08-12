@@ -507,7 +507,7 @@ paths:
         type: string
     post:
       description: Return summary information for all patients of a clinic
-      operationId: get-v1-clinics-cliniid-summary
+      operationId: post-v1-clinics-cliniid-summary
       requestBody:
         content:
           application/json:

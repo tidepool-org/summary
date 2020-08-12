@@ -7,7 +7,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/tidepool-org/clinic/store"
 	"net/http"
 	"os"
 	"os/signal"
@@ -20,6 +19,7 @@ var (
 	Port = 8080
 	ServerString = fmt.Sprintf("%s:%d", Host, Port)
 	ServerTimeoutAmount = 20
+	_ = openapi3filter.Options{}
 
 )
 
@@ -33,21 +33,11 @@ func MainLoop() {
 		e.Logger.Fatal("Cound not get spec")
 	}
 
-	// Connection string
-	mongoHost, err := store.GetConnectionString()
-	if err != nil {
-		e.Logger.Fatal("Cound not connect to database: ", err)
-	}
-
-	// Create Store
-	e.Logger.Print("Getting Mongog Store")
-	dbstore := store.NewMongoStoreClient(mongoHost)
-
-
 	// Middleware
-	authClient := AuthClient{store: dbstore}
-	filterOptions := openapi3filter.Options{AuthenticationFunc: authClient.AuthenticationFunc}
-	options := Options{Options: filterOptions}
+	//authClient := AuthClient{store: dbstore}
+	//filterOptions := openapi3filter.Options{AuthenticationFunc: authClient.AuthenticationFunc}
+	//options := Options{Options: filterOptions}
+	options := Options{}
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(OapiRequestValidator(swagger, &options))
@@ -56,7 +46,7 @@ func MainLoop() {
 	e.GET("/", hello)
 
 	// Register Handler
-	RegisterHandlers(e, &ClinicServer{Store: dbstore})
+	RegisterHandlers(e, &SummaryServer{})
 
 	// Start server
 	e.Logger.Printf("Starting Server at: %s\n", ServerString)
