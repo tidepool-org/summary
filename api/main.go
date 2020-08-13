@@ -63,9 +63,10 @@ func ProcessDeviceDataTopic(config *Config) error {
 					log.Println(topic, "Error Unmarshalling after field", err)
 				} else {
 					if d.Type == "cbg" || d.Type == "smbg" {
-						log.Printf("%v\n", d )
+						log.Printf("%v\n", d)
 					} else {
 						log.Printf("skipping type %v\n", d.Type)
+					}
 				}
 			}
 
