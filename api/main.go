@@ -11,6 +11,8 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/tidepool-org/summary/data"
+	"github.com/tidepool-org/summary/debezium"
 
 	"net/http"
 	"os"
@@ -21,7 +23,7 @@ import (
 
 var (
 	ServerTimeoutAmount = 20
-	_ = openapi3filter.Options{}
+	_                   = openapi3filter.Options{}
 )
 
 //Config is the input configuration
@@ -31,32 +33,6 @@ type Config struct {
 	Topic       string `envconfig:"TIDEPOOL_KAFKA_DEVICEDATA_TOPIC" required:"true"`
 	ServiceAuth string `envconfig:"TIDEPOOL_SUMMARY_SERVICE_SECRET" required:"true"`
 	Address     string `envconfig:"TIDEPOOL_SUMMARY_SERVICE_SERVER_ADDRESS" default:":8080"`
-}
-
-type Debezium struct {
-	After string `json:"after"`
-	Before string `json:"before"`
-	op string `json:"op"`
-}
-
-//Base is a subset of the fields common to all datums
-type Base struct {
-	Active   bool    `json:"-" bson:"_active"` // if false, this object has been effectively deleted
-	DeviceID *string `json:"deviceId,omitempty" bson:"deviceId,omitempty"`
-	ID       *string `json:"id,omitempty" bson:"id,omitempty"`
-	Source   *string `json:"source,omitempty" bson:"source,omitempty"`
-	Time     *string `json:"time,omitempty" bson:"time,omitempty"`
-	Type     string  `json:"type,omitempty" bson:"type,omitempty"`
-	UploadID *string `json:"uploadId,omitempty" bson:"uploadId,omitempty"`
-	UserID   *string `json:"-" bson:"_userId,omitempty"`
-}
-
-// Blood is the type of a blood value
-type Blood struct {
-	Base `bson:",inline"`
-
-	Units *string  `json:"units,omitempty" bson:"units,omitempty"`
-	Value *float64 `json:"value,omitempty" bson:"value,omitempty"`
 }
 
 // ProcessDeviceDataTopic processs messages for device
@@ -78,19 +54,18 @@ func ProcessDeviceDataTopic(config *Config) error {
 		if err == nil {
 			fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
 
-			var rec map[string]interface{}
+			var rec debezium.MongoDBEvent
 			if err := json.Unmarshal(msg.Value, &rec); err != nil {
 				fmt.Println(config.Topic, "Error Unmarshalling", err)
 			} else {
-				//source, source_ok := rec["source"]
-				afterField, ok := rec["after"]
-				if ok {
-					var data Blood
-					data_string := fmt.Sprintf("%v", afterField)
-					if err := json.Unmarshal([]byte(data_string), &data); err != nil {
-						//fmt.Println(topic, "Error Unmarshalling after field", err)
+				var d data.Blood
+				if err := json.Unmarshal([]byte(rec.Payload.After), &d); err != nil {
+					log.Println(topic, "Error Unmarshalling after field", err)
+				} else {
+					if d.Type == "cbg" || d.Type == "smbg" {
+						log.Printf("%v\n", d )
 					} else {
-					}
+						log.Printf("skipping type %v\n", d.Type)
 				}
 			}
 
