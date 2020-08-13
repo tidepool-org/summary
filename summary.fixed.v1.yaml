@@ -404,6 +404,11 @@ components:
           type: array
         units:
           $ref: '#/components/schemas/SummaryRequest-units'
+      required:
+      - mean
+      - units
+      - count
+      - quantiles
       title: Summary statistics
       type: object
       x-examples:

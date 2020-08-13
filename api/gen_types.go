@@ -133,14 +133,14 @@ type SummaryResponse struct {
 type SummaryStatistics struct {
 
 	// Total number of samples in period.
-	Count *int `json:"count,omitempty"`
+	Count int `json:"count"`
 
 	// Mean glucose over samples in period
-	Mean *float32 `json:"mean,omitempty"`
+	Mean float32 `json:"mean"`
 
 	// An array of quantile measurements.
-	Quantiles *[]Quantile          `json:"quantiles,omitempty"`
-	Units     *SummaryRequestUnits `json:"units,omitempty"`
+	Quantiles []Quantile          `json:"quantiles"`
+	Units     SummaryRequestUnits `json:"units"`
 }
 
 // UpdateEvent defines model for UpdateEvent.

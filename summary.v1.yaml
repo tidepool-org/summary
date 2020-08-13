@@ -307,6 +307,11 @@ components:
           description: An array of quantile measurements.
           items:
             $ref: '#/components/schemas/Quantile'
+      required:
+        - mean
+        - units
+        - count
+        - quantiles
     SummaryResponse:
       type: object
       title: Summary response
