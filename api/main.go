@@ -2,17 +2,12 @@ package api
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"log"
 
-	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/tidepool-org/summary/data"
-	"github.com/tidepool-org/summary/debezium"
 
 	"net/http"
 	"os"
@@ -34,49 +29,6 @@ type Config struct {
 	Topic       string `envconfig:"TIDEPOOL_KAFKA_DEVICEDATA_TOPIC" required:"true"`
 	ServiceAuth string `envconfig:"TIDEPOOL_SUMMARY_SERVICE_SECRET" required:"true"`
 	Address     string `envconfig:"TIDEPOOL_SUMMARY_SERVICE_SERVER_ADDRESS" default:":8080"`
-}
-
-// ProcessDeviceDataTopic processs messages for device
-func ProcessDeviceDataTopic(config *Config) error {
-	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": config.Brokers,
-		"group.id":          "summary",
-		"auto.offset.reset": "earliest",
-	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	topic := config.Prefix + config.Topic
-	c.SubscribeTopics([]string{topic}, nil)
-
-	for {
-		msg, err := c.ReadMessage(-1)
-		if err == nil {
-			fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
-
-			var rec debezium.MongoDBEvent
-			if err := json.Unmarshal(msg.Value, &rec); err != nil {
-				fmt.Println(config.Topic, "Error Unmarshalling", err)
-			} else {
-				var d data.Blood
-				if err := json.Unmarshal([]byte(rec.Payload.After), &d); err != nil {
-					log.Println(topic, "Error Unmarshalling after field", err)
-				} else {
-					if d.Type == "cbg" || d.Type == "smbg" {
-						log.Printf("%v\n", d)
-					} else {
-						log.Printf("skipping type %v\n", d.Type)
-					}
-				}
-			}
-
-		} else {
-			// The client will automatically try to recover from all errors.
-			fmt.Printf("Consumer error: %v (%v)\n", err, msg)
-		}
-	}
 }
 
 //MainLoop is the main loop
@@ -107,8 +59,6 @@ func MainLoop() {
 
 	// Routes
 	e.GET("/", hello)
-
-	go ProcessDeviceDataTopic(&config)
 
 	// Register Handler
 	RegisterHandlers(e, &SummaryServer{})

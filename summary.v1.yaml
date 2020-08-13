@@ -83,8 +83,8 @@ components:
   schemas:
     SummaryPeriod:
       type: object
-      title: Summary statistics metadata
-      description: Summary diabetes statistics metadata
+      title: Summary period
+      description: Summary period
       default: {}
       additionalProperties: false
       x-examples:
@@ -229,7 +229,7 @@ components:
         - stats
     SummaryRequest:
       title: Summary request
-      description: "Request a set of named quantiles.  The named quantiles MUST include the names: \"veryHigh\", \"high\", \"low\", \"veryLow\". Other named quantiles MAY be provided. \n"
+      description: "Request a set of named quantiles over a set of periods.  The named quantiles MUST include the names: \"veryHigh\", \"high\", \"low\", \"veryLow\". Other named quantiles MAY be provided. \n"
       default: {}
       additionalProperties: false
       type: object
@@ -260,9 +260,22 @@ components:
             required:
               - name
               - threshold
+        period:
+          type: object
+          required:
+            - length
+            - numPeriods
+          properties:
+            length:
+              type: string
+              example: week
+            numPeriods:
+              type: integer
+              minimum: 0
       required:
         - units
         - quantiles
+        - period
     SummaryStatistics:
       type: object
       title: Summary statistics

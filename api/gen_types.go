@@ -39,7 +39,7 @@ type SummaryPeriod struct {
 // SummaryReport defines model for SummaryReport.
 type SummaryReport struct {
 
-	// Summary diabetes statistics metadata
+	// Summary period
 	Period SummaryPeriod `json:"period"`
 
 	// Summary diabetes statistics
@@ -48,6 +48,10 @@ type SummaryReport struct {
 
 // SummaryRequest defines model for SummaryRequest.
 type SummaryRequest struct {
+	Period struct {
+		Length     string `json:"length"`
+		NumPeriods int    `json:"numPeriods"`
+	} `json:"period"`
 	Quantiles []struct {
 
 		// The name of the quantile.

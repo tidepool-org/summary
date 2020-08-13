@@ -66,7 +66,7 @@ components:
     SummaryPeriod:
       additionalProperties: false
       default: {}
-      description: Summary diabetes statistics metadata
+      description: Summary period
       properties:
         length:
           $id: '#/properties/period/properties/units'
@@ -92,7 +92,7 @@ components:
       - length
       - start
       - updated
-      title: Summary statistics metadata
+      title: Summary period
       type: object
       x-examples:
         example-1:
@@ -143,10 +143,22 @@ components:
     SummaryRequest:
       additionalProperties: false
       default: {}
-      description: "Request a set of named quantiles.  The named quantiles MUST include\
-        \ the names: \"veryHigh\", \"high\", \"low\", \"veryLow\". Other named quantiles\
-        \ MAY be provided. \n"
+      description: "Request a set of named quantiles over a set of periods.  The named\
+        \ quantiles MUST include the names: \"veryHigh\", \"high\", \"low\", \"veryLow\"\
+        . Other named quantiles MAY be provided. \n"
       properties:
+        period:
+          properties:
+            length:
+              example: week
+              type: string
+            numPeriods:
+              minimum: 0
+              type: integer
+          required:
+          - length
+          - numPeriods
+          type: object
         quantiles:
           items:
             additionalProperties: false
@@ -169,6 +181,7 @@ components:
       required:
       - units
       - quantiles
+      - period
       title: Summary request
       type: object
     SummaryRequest-units:

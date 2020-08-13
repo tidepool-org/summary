@@ -1,77 +1,83 @@
 package api
 
-import "github.com/tidepool-org/summary/data"
+import (
+	"context"
+	"encoding/json"
+	"log"
 
-// ConverstionRatio is the mmol to mg/dL ratio
-const ConverstionRatio = 18.0182
+	"github.com/tidepool-org/summary/data"
+	"github.com/tidepool-org/summary/debezium"
+)
 
-// QuantileInfo aggregates partial info leading to a quantile summary
-type QuantileInfo struct {
-	Count int
-	Sum   float64
-}
-
-// Summarizer create a summary of blood glucose data
+//Summarizer creates summaries
 type Summarizer struct {
-	Request   *SummaryRequest
-	Quantiles []QuantileInfo
-	Count     int
-	Sum       float64
+	Histograms []*Histogramer // histograms for each time range
+	Normalizer UnitNormalizer
+	Request    SummaryRequest
 }
 
-// NewSummarizer create a summarizer
-func NewSummarizer(request *SummaryRequest) *Summarizer {
+// NewSummarizer creates a Summarizer for the given request
+func NewSummarizer(request SummaryRequest) *Summarizer {
+	histograms := make([]*Histogramer, request.Period.NumPeriods)
+	quantiles := make([]QuantileInfo, len(request.Quantiles))
+
+	for i := range quantiles {
+		quantiles[i].Name = request.Quantiles[i].Name
+		quantiles[i].Threshold = float64(request.Quantiles[i].Threshold)
+	}
+
+	for i := range histograms {
+		histograms[i] = NewHistogramer(quantiles)
+	}
+
 	return &Summarizer{
-		Request:   request,
-		Quantiles: make([]QuantileInfo, len(request.Quantiles)),
+		Histograms: histograms,
+		Request:    request,
+		Normalizer: &BloodGlucoseNormalizer{},
 	}
 }
 
-// Convert value in units of summarizer
-func (s *Summarizer) Convert(val float64, units SummaryRequestUnits) float64 {
-	if units == s.Request.Units {
-		return val
-	}
-	if units == SummaryRequestUnits_mmol_L || units == SummaryRequestUnits_mmol_l {
-		return val * ConverstionRatio
-	}
-	return val / ConverstionRatio
-}
+//Run runs the summarizer until the context is closed or the input channel is closed
+func (s *Summarizer) Run(ctx context.Context, in <-chan *debezium.MongoDBEvent, out chan<- SummaryResponse) {
+	defer close(out)
 
-// Add adds a blood sample to the summary
-func (s *Summarizer) Add(d data.Blood) {
-	if d.Units == nil || d.Value == nil {
-		return
-	}
-	value := s.Convert(*d.Value, SummaryRequestUnits(*d.Units))
-	for i, quantile := range s.Request.Quantiles {
-		if value < float64(quantile.Threshold) {
-			s.Quantiles[i].Count++
-			s.Quantiles[i].Sum += value
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case s := <-in:
+			switch s.Payload.Op {
+			case "c":
+
+			case "r":
+			case "u":
+			case "d":
+			}
 		}
 	}
-	s.Count++
-	s.Sum += value
 }
 
-// Remove adds a blood sample to the summary
-func (s *Summarizer) Remove(d data.Blood) {
-	if d.Units == nil || d.Value == nil {
-		return
-	}
-	value := s.Convert(*d.Value, SummaryRequestUnits(*d.Units))
-	for i, quantile := range s.Request.Quantiles {
-		if value < float64(quantile.Threshold) {
-			s.Quantiles[i].Count--
-			s.Quantiles[i].Sum -= value
+//Add add an event
+func (s *Summarizer) Add(rec *debezium.MongoDBEvent) {
+	var d data.Blood
+	if err := json.Unmarshal([]byte(rec.Payload.After), &d); err != nil {
+		log.Println("Error Unmarshalling after field", err)
+	} else {
+		if d.Type == "cbg" || d.Type == "smbg" {
+			log.Printf("%v\n", d)
+			if d.Value == nil || d.Units == nil {
+				log.Printf("skipping entry with missing value or units %v\n", d)
+				return
+			}
+			//standardized := s.Normalizer.ToStandard(float32(*d.Value), *d.Units) XXX
+			// place into all matching bins
+		} else {
+			log.Printf("skipping type %v\n", d.Type)
 		}
 	}
-	s.Count--
-	s.Sum -= value
 }
 
-// Summary returns the summary report
-func (s *Summarizer) Summary() *SummaryStatistics {
+/*
 	if s.Count == 0 {
 		return &SummaryStatistics{
 			Units:     s.Request.Units,
@@ -93,3 +99,4 @@ func (s *Summarizer) Summary() *SummaryStatistics {
 		Quantiles: quantiles,
 	}
 }
+*/
