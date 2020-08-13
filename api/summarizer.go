@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"time"
 
 	"github.com/tidepool-org/summary/data"
-	"github.com/tidepool-org/summary/debezium"
 )
 
 //Summarizer creates summaries
 type Summarizer struct {
 	Histograms []*Histogramer // histograms for each time range
+	Periods    []SummaryPeriod
 	Normalizer UnitNormalizer
 	Request    SummaryRequest
 }
@@ -37,43 +38,87 @@ func NewSummarizer(request SummaryRequest) *Summarizer {
 	}
 }
 
+// ChangeNotificationEvent is a notification of a change given event time
+type ChangeNotificationEvent struct {
+	Date   time.Time `json:"date"`   // event time of original record
+	UserID string    `json:"userid"` // userid
+	Kind   string    `kind:"kind"`   // enum: cbg, smbg, profile
+}
+
 //Run runs the summarizer until the context is closed or the input channel is closed
-func (s *Summarizer) Run(ctx context.Context, in <-chan *debezium.MongoDBEvent, out chan<- SummaryResponse) {
+func (s *Summarizer) Run(ctx context.Context, in <-chan *ChangeNotificationEvent, out chan<- SummaryResponse) {
 	defer close(out)
 
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case s := <-in:
-			switch s.Payload.Op {
-			case "c":
-
-			case "r":
-			case "u":
-			case "d":
-			}
+		case msg := <-in:
+			s.Process(msg)
 		}
 	}
 }
 
-//Add add an event
-func (s *Summarizer) Add(rec *debezium.MongoDBEvent) {
-	var d data.Blood
-	if err := json.Unmarshal([]byte(rec.Payload.After), &d); err != nil {
+type BloodGlucose struct {
+	Date   time.Time
+	UserID string
+	Value  float32
+	Units  string
+}
+
+type BGProvider interface {
+	Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BloodGlucose)
+}
+
+type MongoBGProvider struct {
+}
+
+var _ BGProvider = &MongoBGProvider{}
+
+//Get provide BG values on a channel, close channel when no more values
+func (b *MongoBGProvider) Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BloodGlucose) {
+}
+
+//Process an event
+// TODO handle delete and update (usually active to inactive or vice-versa)
+func (s *Summarizer) Process(rec *ChangeNotificationEvent) {
+	var after data.Blood
+
+	if err := json.Unmarshal([]byte(rec.Payload.After), &after); err != nil {
 		log.Println("Error Unmarshalling after field", err)
-	} else {
-		if d.Type == "cbg" || d.Type == "smbg" {
-			log.Printf("%v\n", d)
-			if d.Value == nil || d.Units == nil {
-				log.Printf("skipping entry with missing value or units %v\n", d)
-				return
-			}
-			//standardized := s.Normalizer.ToStandard(float32(*d.Value), *d.Units) XXX
-			// place into all matching bins
-		} else {
-			log.Printf("skipping type %v\n", d.Type)
+		return
+	}
+
+	if after.Type == "cbg" || after.Type == "smbg" {
+		if after.Value == nil || after.Units == nil {
+			log.Printf("skipping entry with missing value or units %v\n", after)
+			return
 		}
+		layout := "2006-01-02T15:04:05Z"
+		t, err := time.Parse(layout, *after.Time)
+
+		if err != nil {
+			log.Printf("skipping entry with bad date %v\n", after)
+			return
+		}
+
+		var standardizedAfter float32
+		op := rec.Payload.Op
+		if op == "r" || op == "c" {
+			standardizedAfter = s.Normalizer.ToStandard(float32(*after.Value), *after.Units)
+		}
+
+		if after.Active {
+			for i, p := range s.Periods {
+				if (!t.Before(p.Start)) && p.End.After(t) {
+					if op == "r" || op == "c" {
+						s.Histograms[i].Add(float64(standardizedAfter))
+					}
+				}
+			}
+		}
+	} else {
+		log.Printf("skipping type %v\n", after.Type)
 	}
 }
 

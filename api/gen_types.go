@@ -26,10 +26,13 @@ type Quantile struct {
 // SummaryPeriod defines model for SummaryPeriod.
 type SummaryPeriod struct {
 
-	// The length of the period.
+	// The ending date-time (exclusive)
+	End time.Time `json:"end"`
+
+	// The length of the sample period
 	Length string `json:"length"`
 
-	// The start date of the period being reported.
+	// The starting date-time (inclusive).
 	Start time.Time `json:"start"`
 
 	// The time that these statistics were last updated for the given period.

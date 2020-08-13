@@ -8,4 +8,5 @@ require (
 	github.com/getkin/kin-openapi v0.13.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.1.16
+	go.mongodb.org/mongo-driver v1.4.0
 )

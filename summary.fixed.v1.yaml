@@ -68,19 +68,18 @@ components:
       default: {}
       description: Summary period
       properties:
+        end:
+          description: The ending date-time (exclusive)
+          format: date-time
+          type: string
         length:
-          $id: '#/properties/period/properties/units'
-          default: ''
-          description: The length of the period.
+          description: The length of the sample period
           enum:
           - day
           - week
-          examples:
-          - week
-          title: Period units
           type: string
         start:
-          description: The start date of the period being reported.
+          description: The starting date-time (inclusive).
           format: date-time
           type: string
         updated:
@@ -89,9 +88,10 @@ components:
           format: date-time
           type: string
       required:
-      - length
       - start
       - updated
+      - end
+      - length
       title: Summary period
       type: object
       x-examples:
