@@ -22,6 +22,7 @@ import (
 )
 
 var (
+	// ServerTimeoutAmount is the amount of time before we time out the server
 	ServerTimeoutAmount = 20
 	_                   = openapi3filter.Options{}
 )
@@ -47,7 +48,8 @@ func ProcessDeviceDataTopic(config *Config) error {
 		panic(err)
 	}
 
-	c.SubscribeTopics([]string{config.Prefix + config.Topic}, nil)
+	topic := config.Prefix + config.Topic
+	c.SubscribeTopics([]string{topic}, nil)
 
 	for {
 		msg, err := c.ReadMessage(-1)
@@ -77,6 +79,7 @@ func ProcessDeviceDataTopic(config *Config) error {
 	}
 }
 
+//MainLoop is the main loop
 func MainLoop() {
 
 	var config Config
