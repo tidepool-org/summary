@@ -1,4 +1,4 @@
-package api
+package histogram
 
 // QuantileInfo aggregates partial info leading to a quantile summary
 type QuantileInfo struct {

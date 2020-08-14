@@ -1,12 +1,14 @@
-package api
+package kafkasource
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/kelseyhightower/envconfig"
 	"github.com/tidepool-org/summary/debezium"
 )
 
@@ -14,10 +16,29 @@ type EventSource interface {
 	Run(ctx context.Context, ch chan<- *debezium.MongoDBEvent)
 }
 
-// KafkaSource
+// KafkaSource defines a kafka source
 type KafkaSource struct {
 	Consumer *kafka.Consumer
 	Topic    string
+}
+
+//Config is the input configuration
+type Config struct {
+	Brokers     string `envconfig:"TIDEPOOL_KAFKA_BROKERS" required:"true"`
+	Prefix      string `envconfig:"TIDEPOOL_KAFKA_TOPIC_PREFIX" default:""`
+	Topic       string `envconfig:"TIDEPOOL_KAFKA_DEVICEDATA_TOPIC" required:"true"`
+	ServiceAuth string `envconfig:"TIDEPOOL_SUMMARY_SERVICE_SECRET" required:"true"`
+	Address     string `envconfig:"TIDEPOOL_SUMMARY_SERVICE_SERVER_ADDRESS" default:":8080"`
+}
+
+//NewKafkaConfigFromEnv create a Kafka config
+func NewKafkaConfigFromEnv() *Config {
+	var config Config
+	err := envconfig.Process("", &config)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	return &config
 }
 
 var _ EventSource = &KafkaSource{} // ensures that contract is met

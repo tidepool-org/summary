@@ -1,4 +1,4 @@
-package api
+package main
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
+	"github.com/tidepool-org/summary/api"
 
 	"net/http"
 	"os"
@@ -22,28 +24,31 @@ var (
 	_                   = openapi3filter.Options{}
 )
 
-//Config is the input configuration
-type Config struct {
-	Brokers     string `envconfig:"TIDEPOOL_KAFKA_BROKERS" required:"true"`
-	Prefix      string `envconfig:"TIDEPOOL_KAFKA_TOPIC_PREFIX" default:""`
-	Topic       string `envconfig:"TIDEPOOL_KAFKA_DEVICEDATA_TOPIC" required:"true"`
+//ServiceConfig the configuration for the summary service
+type ServiceConfig struct {
 	ServiceAuth string `envconfig:"TIDEPOOL_SUMMARY_SERVICE_SECRET" required:"true"`
 	Address     string `envconfig:"TIDEPOOL_SUMMARY_SERVICE_SERVER_ADDRESS" default:":8080"`
 }
 
-//MainLoop is the main loop
-func MainLoop() {
-
-	var config Config
+//NewServiceConfigFromEnv creates a service config
+func NewServiceConfigFromEnv() *ServiceConfig {
+	var config ServiceConfig
 	err := envconfig.Process("", &config)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	return &config
+}
+
+//main is the main loop
+func main() {
+
+	config := NewServiceConfigFromEnv()
 
 	// Echo instance
 	e := echo.New()
 	e.Logger.Print("Starting Main Loop")
-	swagger, err := GetSwagger()
+	swagger, err := api.GetSwagger()
 	if err != nil {
 		e.Logger.Fatal("Cound not get spec")
 	}
@@ -52,16 +57,16 @@ func MainLoop() {
 	//authClient := AuthClient{store: dbstore}
 	//filterOptions := openapi3filter.Options{AuthenticationFunc: authClient.AuthenticationFunc}
 	//options := Options{Options: filterOptions}
-	options := Options{}
+	options := api.Options{}
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(OapiRequestValidator(swagger, &options))
+	e.Use(api.OapiRequestValidator(swagger, &options))
 
 	// Routes
 	e.GET("/", hello)
 
 	// Register Handler
-	RegisterHandlers(e, &SummaryServer{})
+	api.RegisterHandlers(e, &api.SummaryServer{})
 
 	// Start server
 	e.Logger.Printf("Starting Server at: %s\n", config.Address)

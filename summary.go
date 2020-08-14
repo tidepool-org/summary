@@ -1,9 +1,10 @@
-package api
+package main
 
 import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/tidepool-org/summary/api"
 	"github.com/tidepool-org/summary/debezium"
 )
 
@@ -12,7 +13,7 @@ type SummaryServer struct {
 	Config Config
 }
 
-var _ ServerInterface = &SummaryServer{} // confirms that interface is implemented
+var _ api.ServerInterface = &SummaryServer{} // confirms that interface is implemented
 
 // PostV1ClinicsCliniidSummary provides summaries for clinicians
 // (POST /v1/clinics/{clinicid}/summaries)
