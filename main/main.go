@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/tidepool-org/summary/api"
+	"github.com/tidepool-org/summary/bgprovider"
 
 	"net/http"
 	"os"
@@ -66,7 +67,9 @@ func main() {
 	e.GET("/", hello)
 
 	// Register Handler
-	api.RegisterHandlers(e, &api.SummaryServer{})
+	api.RegisterHandlers(e, &SummaryServer{
+		Provider: &bgprovider.MockProvider{},
+	})
 
 	// Start server
 	e.Logger.Printf("Starting Server at: %s\n", config.Address)

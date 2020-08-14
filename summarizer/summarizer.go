@@ -91,12 +91,11 @@ func (s *Summarizer) Process(rec interface{}) {
 	}
 }
 
-/*
+//Summary return summary report
+func (s *Summarizer) Summary() api.SummaryResponse {
+
 	if s.Count == 0 {
-		return &SummaryStatistics{
-			Units:     s.Request.Units,
-			Quantiles: make([]Quantile, 0),
-		}
+		return &api.SummaryResponse{}
 	}
 	quantiles := make([]Quantile, len(s.Request.Quantiles))
 	for i, quantile := range s.Quantiles {
@@ -113,4 +112,3 @@ func (s *Summarizer) Process(rec interface{}) {
 		Quantiles: quantiles,
 	}
 }
-*/

@@ -13,7 +13,7 @@ type BG interface{}
 
 //BGProvider provides a sequence of blood glucose readings
 type BGProvider interface {
-	Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BG)
+	Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BG, continuous bool)
 }
 
 // MockProvider provides a static sequence of BG values
@@ -34,7 +34,7 @@ func PF64(x float64) *float64 {
 
 //Get provide blood glucose and upload values on a channel, close channel when no more values
 // provide uploads BEFORE blood glucose that refers to them
-func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BG) {
+func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BG, continuous bool) {
 	ch <- &data.Upload{
 		Base: data.Base{
 			Active:   true,
