@@ -43,10 +43,10 @@ type MongoPagingParams struct {
 }
 
 // NewMongoStoreClient creates a client to a mongo store
-func NewMongoStoreClient(uri string, databaseName string) *MongoStoreClient {
+func NewMongoStoreClient(provider URIProvider, databaseName string) *MongoStoreClient {
 
 	log.Println("NewMongoStoreClient: Creating Mongo Store")
-	client, err := mongo.NewClient(options.Client().ApplyURI(uri))
+	client, err := mongo.NewClient(options.Client().ApplyURI(provider.URI()))
 	if err != nil {
 		log.Fatalln("NewMongoStoreClient: cannot create client:", err)
 	}

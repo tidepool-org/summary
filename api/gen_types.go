@@ -7,6 +7,48 @@ import (
 	"time"
 )
 
+// Client defines model for Client.
+type Client struct {
+
+	// The name of the client software used to extract the data
+	Name *string `json:"name,omitempty"`
+
+	// The software platform on which the client software was run
+	Platform *string                 `json:"platform,omitempty"`
+	Private  *map[string]interface{} `json:"private,omitempty"`
+
+	// The version of the client software used to extract the data
+	Version *string `json:"version,omitempty"`
+}
+
+// Device defines model for Device.
+type Device struct {
+
+	// An array of string tags indicating the manufacturer(s) of the device.
+	//
+	// In order to avoid confusion resulting from referring to a single manufacturer with more than one name—for example, using both 'Minimed' and 'Medtronic' interchangeably—we restrict the set of strings used to refer to manufacturers to the set listed above and enforce *exact* string matches (including casing).
+	//
+	// `deviceManufacturers` is an array of one or more string "tags" because there are devices resulting from a collaboration between more than one manufacturer, such as the Tandem G4 insulin pump with CGM integration (a collaboration between `Tandem` and `Dexcom`).
+	DeviceManufacturers *[]string `json:"deviceManufacturers,omitempty"`
+
+	// A string identifying the model of the device.
+	//
+	// The `deviceModel` is a non-empty string that encodes the model of device. We endeavor to match each manufacturer's standard for how they represent model name in terms of casing, whether parts of the name are represented as one word or two, etc.
+	DeviceModel *string `json:"deviceModel,omitempty"`
+
+	// A string encoding the device's serial number.
+	//
+	// The `deviceSerialNumber` is a string that encodes the serial number of the device. Note that even if a manufacturer only uses digits in its serial numbers, the SN should be stored as a string regardless.
+	//
+	// Uniquely of string fields in the Tidepool device data models, `deviceSerialNumber` *may* be an empty string. This is essentially a compromise: having the device serial number is extremely important (especially for e.g., clinical studies) but in 2016 we came across our first case where we *cannot* recover the serial number of the device that generated the data: Dexcom G5 data uploaded to Tidepool through Apple iOS's HealthKit integration.
+	DeviceSerialNumber *string `json:"deviceSerialNumber,omitempty"`
+
+	// An array of string tags indicating the function(s) of the device.
+	//
+	// The `deviceTags` array should be fairly self-explanatory as an array of tags indicating the function(s) of a particular device. For example, the Insulet OmniPod insulin delivery system has the tags `bgm` and `insulin-pump` since the PDM is both an insulin pump controller and includes a built-in blood glucose monitor.
+	DeviceTags *[]interface{} `json:"deviceTags,omitempty"`
+}
+
 // Quantile defines model for Quantile.
 type Quantile struct {
 
@@ -63,71 +105,14 @@ type SummaryRequest struct {
 		// The threshold value for the quantiles.  All samples must be below the threshold to be included in the count.
 		Threshold float32 `json:"threshold"`
 	} `json:"quantiles"`
-	Units SummaryRequestUnits `json:"units"`
+	Units Units `json:"units"`
 }
-
-// SummaryRequestUnits defines model for SummaryRequest-units.
-type SummaryRequestUnits string
-
-// List of SummaryRequestUnits
-const (
-	SummaryRequestUnits_mg_dL  SummaryRequestUnits = "mg/dL"
-	SummaryRequestUnits_mg_dl  SummaryRequestUnits = "mg/dl"
-	SummaryRequestUnits_mmol_L SummaryRequestUnits = "mmol/L"
-	SummaryRequestUnits_mmol_l SummaryRequestUnits = "mmol/l"
-)
 
 // SummaryResponse defines model for SummaryResponse.
 type SummaryResponse struct {
 
 	// A summary of which devices were used and when to upload diabetes data
-	Activity *[]struct {
-
-		// The client software that provided diabetes data
-		Client *struct {
-
-			// The name of the client software used to extract the data
-			Name *string `json:"name,omitempty"`
-
-			// The software platform on which the client software was run
-			Platform *string                 `json:"platform,omitempty"`
-			Private  *map[string]interface{} `json:"private,omitempty"`
-
-			// The version of the client software used to extract the data
-			Version *string `json:"version,omitempty"`
-		} `json:"client,omitempty"`
-
-		// The device used to provide diabetes data
-		Device *struct {
-
-			// An array of string tags indicating the manufacturer(s) of the device.
-			//
-			// In order to avoid confusion resulting from referring to a single manufacturer with more than one name—for example, using both 'Minimed' and 'Medtronic' interchangeably—we restrict the set of strings used to refer to manufacturers to the set listed above and enforce *exact* string matches (including casing).
-			//
-			// `deviceManufacturers` is an array of one or more string "tags" because there are devices resulting from a collaboration between more than one manufacturer, such as the Tandem G4 insulin pump with CGM integration (a collaboration between `Tandem` and `Dexcom`).
-			DeviceManufacturers *[]string `json:"deviceManufacturers,omitempty"`
-
-			// A string identifying the model of the device.
-			//
-			// The `deviceModel` is a non-empty string that encodes the model of device. We endeavor to match each manufacturer's standard for how they represent model name in terms of casing, whether parts of the name are represented as one word or two, etc.
-			DeviceModel *string `json:"deviceModel,omitempty"`
-
-			// A string encoding the device's serial number.
-			//
-			// The `deviceSerialNumber` is a string that encodes the serial number of the device. Note that even if a manufacturer only uses digits in its serial numbers, the SN should be stored as a string regardless.
-			//
-			// Uniquely of string fields in the Tidepool device data models, `deviceSerialNumber` *may* be an empty string. This is essentially a compromise: having the device serial number is extremely important (especially for e.g., clinical studies) but in 2016 we came across our first case where we *cannot* recover the serial number of the device that generated the data: Dexcom G5 data uploaded to Tidepool through Apple iOS's HealthKit integration.
-			DeviceSerialNumber *string `json:"deviceSerialNumber,omitempty"`
-
-			// An array of string tags indicating the function(s) of the device.
-			//
-			// The `deviceTags` array should be fairly self-explanatory as an array of tags indicating the function(s) of a particular device. For example, the Insulet OmniPod insulin delivery system has the tags `bgm` and `insulin-pump` since the PDM is both an insulin pump controller and includes a built-in blood glucose monitor.
-			DeviceTags *[]interface{} `json:"deviceTags,omitempty"`
-		} `json:"device,omitempty"`
-
-		// The time that that the device was last used to provide diabetes data
-		Event *UpdateEvent `json:"event,omitempty"`
-	} `json:"activity,omitempty"`
+	Activity []UploadActivity `json:"activity"`
 
 	// Summary of recent glucose information.
 	Reports []SummaryReport `json:"reports"`
@@ -146,9 +131,20 @@ type SummaryStatistics struct {
 	Mean float32 `json:"mean"`
 
 	// An array of quantile measurements.
-	Quantiles []Quantile          `json:"quantiles"`
-	Units     SummaryRequestUnits `json:"units"`
+	Quantiles []Quantile `json:"quantiles"`
+	Units     Units      `json:"units"`
 }
+
+// Units defines model for Units.
+type Units string
+
+// List of Units
+const (
+	Units_mg_dL  Units = "mg/dL"
+	Units_mg_dl  Units = "mg/dl"
+	Units_mmol_L Units = "mmol/L"
+	Units_mmol_l Units = "mmol/l"
+)
 
 // UpdateEvent defines model for UpdateEvent.
 type UpdateEvent struct {
@@ -160,7 +156,20 @@ type UpdateEvent struct {
 	Type string `json:"type"`
 }
 
-// UserId defines model for userId.
+// UploadActivity defines model for UploadActivity.
+type UploadActivity struct {
+
+	// The client software that provided diabetes data
+	Client *Client `json:"client,omitempty"`
+
+	// The device used to provide diabetes data
+	Device *Device `json:"device,omitempty"`
+
+	// The time that that the device was last used to provide diabetes data
+	Event *UpdateEvent `json:"event,omitempty"`
+}
+
+// UserId defines model for UserId.
 type UserId string
 
 // PostV1ClinicsCliniidSummaryJSONBody defines parameters for PostV1ClinicsCliniidSummary.
