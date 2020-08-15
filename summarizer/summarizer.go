@@ -7,7 +7,8 @@ import (
 	"github.com/tidepool-org/summary/data"
 )
 
-type UserSummary struct {
+//UserSummarizer summarizes use activity
+type UserSummarizer struct {
 	Glucose  *GlucoseSummarizer
 	Activity ActivitySummarizer
 }
@@ -15,7 +16,7 @@ type UserSummary struct {
 //Summarizer creates summaries of upload activity
 type Summarizer struct {
 	Request   api.SummaryRequest
-	Summaries map[string]*UserSummary
+	Summaries map[string]*UserSummarizer
 }
 
 // NewSummarizer creates a Summarizer for the given request
@@ -25,11 +26,12 @@ func NewSummarizer(request api.SummaryRequest) *Summarizer {
 	}
 }
 
-func (s *Summarizer) SummaryForUser(userid string) *UserSummary {
+//SummaryForUser return summary for given user
+func (s *Summarizer) SummaryForUser(userid string) *UserSummarizer {
 	if summary, ok := s.Summaries[userid]; ok {
 		return summary
 	}
-	s.Summaries[userid] = new(UserSummary)
+	s.Summaries[userid] = new(UserSummarizer)
 	return s.Summaries[userid]
 }
 
@@ -52,7 +54,7 @@ func (s *Summarizer) Summary() []*api.SummaryResponse {
 		summaries = append(summaries,
 			&api.SummaryResponse{
 				Activity: summary.Activity.Usage,
-				Reports:  summary.Glucose.Summary(),
+				Glucose:  summary.Glucose.Summary(),
 				Userid:   api.UserId(userid),
 			},
 		)

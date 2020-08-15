@@ -49,6 +49,16 @@ type Device struct {
 	DeviceTags *[]interface{} `json:"deviceTags,omitempty"`
 }
 
+// GlucoseSummary defines model for GlucoseSummary.
+type GlucoseSummary struct {
+
+	// Summary period
+	Period SummaryPeriod `json:"period"`
+
+	// Summary diabetes statistics
+	Stats SummaryStatistics `json:"stats"`
+}
+
 // Quantile defines model for Quantile.
 type Quantile struct {
 
@@ -81,16 +91,6 @@ type SummaryPeriod struct {
 	Updated time.Time `json:"updated"`
 }
 
-// SummaryReport defines model for SummaryReport.
-type SummaryReport struct {
-
-	// Summary period
-	Period SummaryPeriod `json:"period"`
-
-	// Summary diabetes statistics
-	Stats SummaryStatistics `json:"stats"`
-}
-
 // SummaryRequest defines model for SummaryRequest.
 type SummaryRequest struct {
 	Period struct {
@@ -115,7 +115,7 @@ type SummaryResponse struct {
 	Activity []UploadActivity `json:"activity"`
 
 	// Summary of recent glucose information.
-	Reports []SummaryReport `json:"reports"`
+	Glucose []GlucoseSummary `json:"glucose"`
 
 	// String representation of a Tidepool User ID
 	Userid UserId `json:"userid"`

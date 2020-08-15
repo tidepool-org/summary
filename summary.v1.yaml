@@ -186,7 +186,7 @@ components:
         - name
         - threshold
         - percentage
-    SummaryReport:
+    GlucoseSummary:
       type: object
       title: Summary statistics
       description: Summary diabetes statistics
@@ -338,7 +338,7 @@ components:
               event:
                 type: smbg
                 time: '2020-07-06T08:29:02Z'
-          reports:
+          glucose:
             - period:
                 start: '2020-07-05T00:00:00Z'
                 length: week
@@ -399,17 +399,17 @@ components:
           additionalItems: false
           items:
             $ref: '#/components/schemas/UploadActivity'
-        reports:
+        glucose:
           type: array
           title: Recent Statisical Summaries
           description: Summary of recent glucose information.
           items:
-            $ref: '#/components/schemas/SummaryReport'
+            $ref: '#/components/schemas/GlucoseSummary'
         userid:
           $ref: '#/components/schemas/UserId'
       required:
         - activity
-        - reports
+        - glucose
         - userid
     UploadActivity:
       type: object

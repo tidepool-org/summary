@@ -81,8 +81,8 @@ func (s *GlucoseSummarizer) Process(v *data.Blood) {
 }
 
 //Summary return summary report
-func (s *GlucoseSummarizer) Summary() []api.SummaryReport {
-	reports := make([]api.SummaryReport, len(s.Periods))
+func (s *GlucoseSummarizer) Summary() []api.GlucoseSummary {
+	reports := make([]api.GlucoseSummary, len(s.Periods))
 
 	for i, period := range s.Periods {
 		histogram := s.Histograms[i]
@@ -94,7 +94,7 @@ func (s *GlucoseSummarizer) Summary() []api.SummaryReport {
 			quantiles[j].Threshold = s.Request.Quantiles[j].Threshold
 			quantiles[j].Name = s.Request.Quantiles[j].Name
 		}
-		reports[i] = api.SummaryReport{
+		reports[i] = api.GlucoseSummary{
 			Period: period,
 			Stats: api.SummaryStatistics{
 				Count:     histogram.Count,
