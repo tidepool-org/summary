@@ -48,9 +48,9 @@ func (a *ActivitySummarizer) Process(upload *data.Upload) {
 	if !found {
 		a.Usage = append(a.Usage,
 			api.UploadActivity{
-				upload.Client,
-				&device,
-				&api.UpdateEvent{Time: uploadTime, Type: upload.Type},
+				Client: upload.Client,
+				Device: &device,
+				Event:  &api.UpdateEvent{Time: uploadTime, Type: upload.Type},
 			})
 	}
 }
