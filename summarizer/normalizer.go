@@ -1,4 +1,4 @@
-package normalize
+package summarizer
 
 import "github.com/tidepool-org/summary/api"
 
@@ -11,14 +11,14 @@ type UnitNormalizer interface {
 	FromStandard(value float32, unit string) float32
 }
 
-// BloodGlucoseNormalizer converts to/from the internal representatation
-type BloodGlucoseNormalizer struct {
+// GlucoseNormalizer converts to/from the internal representatation
+type GlucoseNormalizer struct {
 }
 
-var _ UnitNormalizer = &BloodGlucoseNormalizer{}
+var _ UnitNormalizer = &GlucoseNormalizer{}
 
 // ToStandard Converts the given value to the standard units
-func (*BloodGlucoseNormalizer) ToStandard(value float32, unit string) float32 {
+func (*GlucoseNormalizer) ToStandard(value float32, unit string) float32 {
 	switch api.Units(unit) {
 	case api.Units_mmol_l:
 		return value * ConverstionRatio
@@ -34,7 +34,7 @@ func (*BloodGlucoseNormalizer) ToStandard(value float32, unit string) float32 {
 }
 
 // FromStandard Converts the given value from the standard units into the units given
-func (*BloodGlucoseNormalizer) FromStandard(value float32, unit string) float32 {
+func (*GlucoseNormalizer) FromStandard(value float32, unit string) float32 {
 	switch api.Units(unit) {
 	case api.Units_mmol_l:
 		return value / ConverstionRatio

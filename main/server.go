@@ -27,10 +27,10 @@ func (c *SummaryServer) PostV1ClinicsCliniidSummary(ctx echo.Context, clinicid s
 	}
 
 	summarizer := summarizer.NewSummarizer(summaryRequest)
-	from, to := DateRange(req api.SummaryRequest)
+	from, to := DateRange(summaryRequest)
 	ch := make(chan bgprovider.BG)
 
-	s.provider.Get(ctx.Request().Context(), from, to, ch, false)
+	c.Provider.Get(ctx.Request().Context(), from, to, ch, false)
 
 	for {
 		select {
@@ -49,14 +49,14 @@ func (c *SummaryServer) PostV1ClinicsCliniidSummary(ctx echo.Context, clinicid s
 //DateRange provide the times needed to produce the reports
 func DateRange(req api.SummaryRequest) (from, to time.Time) {
 	var numDays int
-	if summaryRequest.Period.Length == "day" {
-		numDays = summaryRequest.Period.NumPeriods
-	} else if summaryRequest.Period.Length == "week" {
-		numDays = 7 * summaryRequest.Period.NumPeriods
+	if req.Period.Length == "day" {
+		numDays = req.Period.NumPeriods
+	} else if req.Period.Length == "week" {
+		numDays = 7 * req.Period.NumPeriods
 	}
-	to := time.Now()
-	from := to.AddDate(0, 0, -numDays)
-	return from, to
+	to = time.Now()
+	from = to.AddDate(0, 0, -numDays)
+	return
 }
 
 // PostV1UsersUseridSummary provides summaries for a given user
