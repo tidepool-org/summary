@@ -40,9 +40,9 @@ func (a *ActivitySummarizer) Process(upload *data.Upload) {
 			u.Event.Type == upload.Type {
 			if u.Event.Time.Before(uploadTime) {
 				u.Event.Time = uploadTime
-				found = true
-				break
 			}
+			found = true
+			break
 		}
 	}
 	if !found {
