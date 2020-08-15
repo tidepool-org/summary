@@ -54,15 +54,14 @@ func NewGlucoseSummarizer(request api.SummaryRequest) *GlucoseSummarizer {
 	}
 }
 
-//Process an event
+//Process a glucose sample
 func (s *GlucoseSummarizer) Process(v *data.Blood) {
 	now := time.Now()
 	if v.Value == nil || v.Units == nil {
 		log.Printf("skipping entry with missing value or units %v\n", v)
 		return
 	}
-	layout := "2006-01-02T15:04:05Z"
-	t, err := time.Parse(layout, *v.Time)
+	t, err := time.Parse(Layout, *v.Time)
 
 	if err != nil {
 		log.Printf("skipping entry with bad date %v\n", v)
