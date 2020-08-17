@@ -62,14 +62,14 @@ func main() {
 	//options := Options{Options: filterOptions}
 	options := api.Options{}
 	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	//e.Use(api.OapiRequestValidator(swagger, &options))
 
-	// Routes
 	e.GET("/status", hello)
 
+	e.Use(middleware.Recover())
+	e.Use(api.OapiRequestValidator(swagger, &options))
+
 	// Register Handler
-	//api.RegisterHandlers(e, &server.SummaryServer{ Provider: &bgprovider.MockProvider{}, })
+	api.RegisterHandlers(e, &server.SummaryServer{Provider: &bgprovider.MockProvider{}})
 
 	data, err := json.MarshalIndent(e.Routes(), "", "  ")
 	if err != nil {
@@ -77,7 +77,6 @@ func main() {
 	} else {
 		e.Logger.Printf("routes %s", string(data))
 	}
-
 
 	// Start server
 	e.Logger.Printf("Starting Server at: %s\n", config.Address)
