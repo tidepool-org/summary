@@ -44,6 +44,8 @@ func NewGlucoseSummarizer(request api.SummaryRequest) *GlucoseSummarizer {
 		ending = ending.AddDate(0, 0, -nDays)
 		periods[i].Start = ending
 		periods[i].Length = request.Period.Length
+		log.Printf("from %v to %v", periods[i].Start, periods[i].End)
+
 	}
 
 	return &GlucoseSummarizer{
@@ -84,8 +86,10 @@ func (s *GlucoseSummarizer) Process(v *data.Blood) {
 func (s *GlucoseSummarizer) Summary() []api.GlucoseSummary {
 	reports := make([]api.GlucoseSummary, len(s.Periods))
 
+	log.Printf("num periods %d", len(s.Periods))
 	for i, period := range s.Periods {
 		histogram := s.Histograms[i]
+		log.Printf("num buckets %v", len(histogram.Info))
 		quantiles := make([]api.Quantile, len(histogram.Info))
 		for j, info := range histogram.Info {
 			quantiles[j].Count = new(int)
