@@ -48,8 +48,6 @@ paths:
         required: true
     post:
       summary: Retrieve summaries for all patients of a clinic
-      security:
-        - sessionToken: []
       tags: []
       responses:
         '200':

@@ -36,8 +36,6 @@ func (w *ServerInterfaceWrapper) PostV1ClinicsCliniidSummary(ctx echo.Context) e
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter clinicid: %s", err))
 	}
 
-	ctx.Set("sessionToken.Scopes", []string{""})
-
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.PostV1ClinicsCliniidSummary(ctx, clinicid)
 	return err
