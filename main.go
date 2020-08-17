@@ -72,7 +72,7 @@ func main() {
 	if err != nil {
 		e.Logger.Printf("cannot list routes")
 	} else {
-		e.Logger.Printf("routes %v", data)
+		e.Logger.Printf("routes %s", string(data))
 	}
 
 	// Register Handler
