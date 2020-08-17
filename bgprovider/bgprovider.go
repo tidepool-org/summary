@@ -39,7 +39,7 @@ func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch
 		Base: data.Base{
 			Active:   true,
 			DeviceID: PStr("foo"),
-			Time:     PStr("2020-07-011T08:29:02Z"),
+			Time:     PStr("2020-07-11T08:29:02Z"),
 			Type:     "upload",
 			UploadID: PStr("xyz"),
 			UserID:   PStr("foo"),
@@ -53,7 +53,7 @@ func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch
 		Base: data.Base{
 			Active:   true,
 			DeviceID: PStr("foo"),
-			Time:     PStr("2020-07-011T08:29:02Z"),
+			Time:     PStr("2020-07-11T08:29:02Z"),
 			Type:     "cbg",
 			UploadID: PStr("xyz"),
 			UserID:   PStr("foo"),
