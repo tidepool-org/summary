@@ -22,8 +22,8 @@ type Summarizer struct {
 // NewSummarizer creates a Summarizer for the given request
 func NewSummarizer(request api.SummaryRequest) *Summarizer {
 	return &Summarizer{
-		Request: request,
-		Summaries: make(map[string]*UserSummarizer)
+		Request:   request,
+		Summaries: make(map[string]*UserSummarizer),
 	}
 }
 
