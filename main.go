@@ -68,6 +68,11 @@ func main() {
 	// Routes
 	e.GET("/status", hello)
 
+	// Register Handler
+	api.RegisterHandlers(e, &server.SummaryServer{
+		Provider: &bgprovider.MockProvider{},
+	})
+
 	data, err := json.MarshalIndent(e.Routes(), "", "  ")
 	if err != nil {
 		e.Logger.Printf("cannot list routes")
@@ -75,10 +80,6 @@ func main() {
 		e.Logger.Printf("routes %s", string(data))
 	}
 
-	// Register Handler
-	api.RegisterHandlers(e, &server.SummaryServer{
-		Provider: &bgprovider.MockProvider{},
-	})
 
 	// Start server
 	e.Logger.Printf("Starting Server at: %s\n", config.Address)
