@@ -48,11 +48,11 @@ func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch
 			Name:     PStr("Tidepool Mobile 99.3"),
 			Platform: PStr("windows"),
 		},
-		Device: api.Device {
-			DeviceManufacturers: &string[ PStr("dexcom")],
-			DeviceModel: PStr("G6"),
-			DeviceSerialNumber: PStr("0xfeedbeef"),
-		}
+		Device: api.Device{
+			DeviceManufacturers: &[]string{"dexcom"},
+			DeviceModel:         PStr("G6"),
+			DeviceSerialNumber:  PStr("0xfeedbeef"),
+		},
 	}
 	ch <- data.Blood{
 		Base: data.Base{
