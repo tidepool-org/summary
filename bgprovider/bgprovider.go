@@ -42,6 +42,7 @@ func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch
 			Time:     PStr("2020-07-011T08:29:02Z"),
 			Type:     "upload",
 			UploadID: PStr("xyz"),
+			UserID:   PStr("foo"),
 		},
 		Client: &api.Client{
 			Name:     PStr("Tidepool Mobile 99.3"),
@@ -55,8 +56,10 @@ func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch
 			Time:     PStr("2020-07-011T08:29:02Z"),
 			Type:     "cbg",
 			UploadID: PStr("xyz"),
+			UserID:   PStr("foo"),
 		},
 		Units: PStr("mg/dl"),
 		Value: PF64(130.0),
 	}
+	close(ch)
 }
