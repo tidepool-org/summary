@@ -30,7 +30,7 @@ func (c *SummaryServer) PostV1ClinicsCliniidSummary(ctx echo.Context, clinicid s
 	from, to := DateRange(summaryRequest)
 	ch := make(chan bgprovider.BG)
 
-	c.Provider.Get(ctx.Request().Context(), from, to, ch, false)
+	go c.Provider.Get(ctx.Request().Context(), from, to, ch, false)
 
 	for {
 		select {
