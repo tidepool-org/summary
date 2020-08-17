@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 
 	"github.com/getkin/kin-openapi/openapi3filter"
@@ -68,9 +69,9 @@ func main() {
 	e.GET("/status", hello)
 
 	data, err := json.MarshalIndent(e.Routes(), "", "  ")
-        if err != nil {
-	        e.Logger.Printf("cannot list routes")
-        } else {
+	if err != nil {
+		e.Logger.Printf("cannot list routes")
+	} else {
 		e.Logger.Printf("routes %v", data)
 	}
 
