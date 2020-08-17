@@ -69,9 +69,7 @@ func main() {
 	e.GET("/status", hello)
 
 	// Register Handler
-	api.RegisterHandlers(e, &server.SummaryServer{
-		Provider: &bgprovider.MockProvider{},
-	})
+	//api.RegisterHandlers(e, &server.SummaryServer{ Provider: &bgprovider.MockProvider{}, })
 
 	data, err := json.MarshalIndent(e.Routes(), "", "  ")
 	if err != nil {
