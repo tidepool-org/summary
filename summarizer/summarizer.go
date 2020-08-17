@@ -39,9 +39,15 @@ func (s *Summarizer) SummaryForUser(userid string) *UserSummarizer {
 func (s *Summarizer) Process(rec interface{}) {
 	switch v := rec.(type) {
 	case data.Upload:
-		s.SummaryForUser(*v.UserID).Activity.Process(&v)
+		log.Printf("found upload %v", v)
+		if v.UserID != nil {
+			s.SummaryForUser(*v.UserID).Activity.Process(&v)
+		}
 	case data.Blood:
-		s.SummaryForUser(*v.UserID).Glucose.Process(&v)
+		log.Printf("found blood %v", v)
+		if v.UserID != nil {
+			s.SummaryForUser(*v.UserID).Glucose.Process(&v)
+		}
 	default:
 		log.Printf("skipping  %v \n", v)
 	}
