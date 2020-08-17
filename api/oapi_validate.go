@@ -1,3 +1,17 @@
+// Copyright 2019 DeepMap, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package api
 
 import (
@@ -10,6 +24,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/labstack/echo/v4"
+	echomiddleware "github.com/labstack/echo/v4/middleware"
 )
 
 const EchoContextKey = "oapi-codegen/echo-context"
@@ -31,12 +46,12 @@ func OapiValidatorFromYamlFile(path string) (echo.MiddlewareFunc, error) {
 		return nil, fmt.Errorf("error parsing %s as Swagger YAML: %s",
 			path, err)
 	}
-	return OapiRequestValidator(swagger, nil), nil
+	return OapiRequestValidator(swagger), nil
 }
 
 // Create a validator from a swagger object.
-func OapiRequestValidator(swagger *openapi3.Swagger, options *Options) echo.MiddlewareFunc {
-	return OapiRequestValidatorWithOptions(swagger, options)
+func OapiRequestValidator(swagger *openapi3.Swagger) echo.MiddlewareFunc {
+	return OapiRequestValidatorWithOptions(swagger, nil)
 }
 
 // Options to customize request validation. These are passed through to
@@ -45,13 +60,19 @@ type Options struct {
 	Options      openapi3filter.Options
 	ParamDecoder openapi3filter.ContentParameterDecoder
 	UserData     interface{}
+	Skipper      echomiddleware.Skipper
 }
 
 // Create a validator from a swagger object, with validation options
 func OapiRequestValidatorWithOptions(swagger *openapi3.Swagger, options *Options) echo.MiddlewareFunc {
 	router := openapi3filter.NewRouter().WithSwagger(swagger)
+	skipper := getSkipperFromOptions(options)
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			if skipper(c) {
+				return next(c)
+			}
+
 			err := ValidateRequestFromContext(c, router, options)
 			if err != nil {
 				return err
@@ -65,16 +86,6 @@ func OapiRequestValidatorWithOptions(swagger *openapi3.Swagger, options *Options
 // of validating a request.
 func ValidateRequestFromContext(ctx echo.Context, router *openapi3filter.Router, options *Options) error {
 	req := ctx.Request()
-	// XXX hack to make localhost work
-	fmt.Printf("Scheme: %s, Host: %s\n", req.URL.Scheme, req.URL.Host)
-	fmt.Printf("Headers: %s\n", req.Header)
-	if req.URL.Scheme == "" {
-		req.URL.Scheme = "http"
-	}
-	if req.URL.Host == "" {
-		req.URL.Host = req.Host
-	}
-	fmt.Printf("Fixed Scheme: %s, Host: %s\n", req.URL.Scheme, req.URL.Host)
 	route, pathParams, err := router.FindRoute(req.Method, req.URL)
 
 	// We failed to find a matching route for the request.
@@ -162,4 +173,17 @@ func GetEchoContext(c context.Context) echo.Context {
 
 func GetUserData(c context.Context) interface{} {
 	return c.Value(UserDataKey)
+}
+
+// attempt to get the skipper from the options whether it is set or not
+func getSkipperFromOptions(options *Options) echomiddleware.Skipper {
+	if options == nil {
+		return echomiddleware.DefaultSkipper
+	}
+
+	if options.Skipper == nil {
+		return echomiddleware.DefaultSkipper
+	}
+
+	return options.Skipper
 }

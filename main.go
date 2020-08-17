@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/kelseyhightower/envconfig"
@@ -51,22 +52,26 @@ func main() {
 	// Echo instance
 	e := echo.New()
 	e.Logger.Print("Starting Main Loop")
-	//swagger, err := api.GetSwagger()
-	//if err != nil {
-	//e.Logger.Fatal("Cound not get spec")
-	//}
+	swagger, err := api.GetSwagger()
+	if err != nil {
+		e.Logger.Fatal("Cound not get spec")
+	}
 
 	// Middleware
 	//authClient := AuthClient{store: dbstore}
 	//filterOptions := openapi3filter.Options{AuthenticationFunc: authClient.AuthenticationFunc}
 	//options := Options{Options: filterOptions}
-	//options := api.Options{}
+	options := api.Options{
+		Skipper: func(c echo.Context) bool {
+			return strings.HasPrefix(c.Path(), "/status")
+		},
+	}
 	e.Use(middleware.Logger())
 
 	e.GET("/status", hello)
 
 	e.Use(middleware.Recover())
-	//e.Use(api.OapiRequestValidator(swagger, &options))
+	e.Use(api.OapiRequestValidatorWithOptions(swagger, &options))
 
 	// Register Handler
 	api.RegisterHandlers(e, &server.SummaryServer{Provider: &bgprovider.MockProvider{}})
