@@ -43,7 +43,7 @@ func (s *Summarizer) Process(rec interface{}) {
 	case data.Blood:
 		s.SummaryForUser(*v.UserID).Glucose.Process(&v)
 	default:
-		log.Printf("skipping  %v\n", v)
+		log.Printf("skipping  %v \n", v)
 	}
 }
 

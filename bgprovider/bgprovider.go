@@ -35,7 +35,7 @@ func PF64(x float64) *float64 {
 //Get provide blood glucose and upload values on a channel, close channel when no more values
 // provide uploads BEFORE blood glucose that refers to them
 func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BG, continuous bool) {
-	ch <- &data.Upload{
+	ch <- data.Upload{
 		Base: data.Base{
 			Active:   true,
 			DeviceID: PStr("foo"),
@@ -48,7 +48,7 @@ func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch
 			Platform: PStr("windows"),
 		},
 	}
-	ch <- &data.Blood{
+	ch <- data.Blood{
 		Base: data.Base{
 			Active:   true,
 			DeviceID: PStr("foo"),
