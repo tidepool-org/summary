@@ -42,11 +42,15 @@ func (s *Summarizer) Process(rec interface{}) {
 		log.Printf("found upload %v", v)
 		if v.UserID != nil {
 			s.SummaryForUser(*v.UserID).Activity.Process(&v)
+		} else {
+			log.Printf("missing userid %v", v)
 		}
 	case data.Blood:
 		log.Printf("found blood %v", v)
 		if v.UserID != nil {
 			s.SummaryForUser(*v.UserID).Glucose.Process(&v)
+		} else {
+			log.Printf("missing userid %v", v)
 		}
 	default:
 		log.Printf("skipping  %v \n", v)
@@ -56,6 +60,7 @@ func (s *Summarizer) Process(rec interface{}) {
 //Summary return summary report
 func (s *Summarizer) Summary() []*api.SummaryResponse {
 	summaries := make([]*api.SummaryResponse, 0)
+	log.Println("creating summary")
 	for userid, summary := range s.Summaries {
 		summaries = append(summaries,
 			&api.SummaryResponse{
