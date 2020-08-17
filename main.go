@@ -65,7 +65,7 @@ func main() {
 	e.Use(api.OapiRequestValidator(swagger, &options))
 
 	// Routes
-	e.GET("/", hello)
+	e.GET("/status", hello)
 
 	// Register Handler
 	api.RegisterHandlers(e, &server.SummaryServer{
