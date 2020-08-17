@@ -63,7 +63,7 @@ func main() {
 	options := api.Options{}
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(api.OapiRequestValidator(swagger, &options))
+	//e.Use(api.OapiRequestValidator(swagger, &options))
 
 	// Routes
 	e.GET("/status", hello)
