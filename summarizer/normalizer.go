@@ -2,8 +2,8 @@ package summarizer
 
 import "github.com/tidepool-org/summary/api"
 
-// ConverstionRatio is the mmol to mg/dL ratio
-const ConverstionRatio = 18.0182
+// ConversionRatio is the mmol to mg/dL ratio
+const ConversionRatio = 18.0182
 
 // UnitNormalizer converts values to/from standard units
 type UnitNormalizer interface {
@@ -21,9 +21,9 @@ var _ UnitNormalizer = &GlucoseNormalizer{}
 func (*GlucoseNormalizer) ToStandard(value float32, unit string) float32 {
 	switch api.Units(unit) {
 	case api.Units_mmol_l:
-		return value * ConverstionRatio
+		return value * ConversionRatio
 	case api.Units_mmol_L:
-		return value * ConverstionRatio
+		return value * ConversionRatio
 	case api.Units_mg_dL:
 		return value
 	case api.Units_mg_dl:
@@ -37,9 +37,9 @@ func (*GlucoseNormalizer) ToStandard(value float32, unit string) float32 {
 func (*GlucoseNormalizer) FromStandard(value float32, unit string) float32 {
 	switch api.Units(unit) {
 	case api.Units_mmol_l:
-		return value / ConverstionRatio
+		return value / ConversionRatio
 	case api.Units_mmol_L:
-		return value / ConverstionRatio
+		return value / ConversionRatio
 	case api.Units_mg_dL:
 		return value
 	case api.Units_mg_dl:

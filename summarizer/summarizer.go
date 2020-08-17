@@ -13,6 +13,13 @@ type UserSummarizer struct {
 	Activity ActivitySummarizer
 }
 
+//NewUserSummarizer create a new User Summarizer
+func NewUserSummarizer(request api.SummaryRequest) *UserSummarizer {
+	return &UserSummarizer{
+		Glucose: NewGlucoseSummarizer(request),
+	}
+}
+
 //Summarizer creates summaries of upload activity
 type Summarizer struct {
 	Request   api.SummaryRequest
@@ -32,7 +39,7 @@ func (s *Summarizer) SummaryForUser(userid string) *UserSummarizer {
 	if summary, ok := s.Summaries[userid]; ok {
 		return summary
 	}
-	s.Summaries[userid] = new(UserSummarizer)
+	s.Summaries[userid] = NewUserSummarizer(s.Request)
 	return s.Summaries[userid]
 }
 
