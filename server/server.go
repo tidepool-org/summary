@@ -1,6 +1,8 @@
 package server
 
 import (
+	"fmt"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -30,7 +32,12 @@ func (c *SummaryServer) PostV1ClinicsCliniidSummary(ctx echo.Context, clinicid s
 	from, to := DateRange(summaryRequest)
 	ch := make(chan bgprovider.BG)
 
-	go c.Provider.Get(ctx.Request().Context(), from, to, ch, false)
+	userids := make([]string, rand.Intn(10))
+	for i := range userids {
+		userids[i] = fmt.Sprintf("user%d", i)
+	}
+
+	go c.Provider.Get(ctx.Request().Context(), from, to, ch, false, userids)
 
 	for {
 		select {
@@ -72,7 +79,7 @@ func (c *SummaryServer) PostV1UsersUseridSummary(ctx echo.Context, userid string
 	from, to := DateRange(summaryRequest)
 	ch := make(chan bgprovider.BG)
 
-	go c.Provider.Get(ctx.Request().Context(), from, to, ch, false)
+	go c.Provider.Get(ctx.Request().Context(), from, to, ch, false, []string{userid})
 
 	for {
 		select {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"strings"
 
@@ -75,13 +74,6 @@ func main() {
 
 	// Register Handler
 	api.RegisterHandlers(e, &server.SummaryServer{Provider: &bgprovider.MockProvider{}})
-
-	data, err := json.MarshalIndent(e.Routes(), "", "  ")
-	if err != nil {
-		e.Logger.Printf("cannot list routes")
-	} else {
-		e.Logger.Printf("routes %s", string(data))
-	}
 
 	// Start server
 	e.Logger.Printf("Starting Server at: %s\n", config.Address)
