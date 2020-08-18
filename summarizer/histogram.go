@@ -46,6 +46,10 @@ func (s *Histogramer) Remove(value float64) {
 	s.Sum -= float64(value)
 }
 
+//Mean value
 func (s *Histogramer) Mean() float64 {
-	return s.Sum / float64(s.Count)
+	if s.Count > 0 {
+		return s.Sum / float64(s.Count)
+	}
+	return 0.0
 }

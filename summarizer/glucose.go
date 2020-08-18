@@ -45,7 +45,6 @@ func NewGlucoseSummarizer(request api.SummaryRequest) *GlucoseSummarizer {
 		periods[i].Start = ending
 		periods[i].Length = request.Period.Length
 		log.Printf("from %v to %v", periods[i].Start, periods[i].End)
-
 	}
 
 	return &GlucoseSummarizer{
@@ -85,16 +84,19 @@ func (s *GlucoseSummarizer) Process(v *data.Blood) {
 //Summary return summary report
 func (s *GlucoseSummarizer) Summary() []api.GlucoseSummary {
 	reports := make([]api.GlucoseSummary, len(s.Periods))
-
-	log.Printf("num periods %d", len(s.Periods))
+	now := time.Now()
 	for i, period := range s.Periods {
 		histogram := s.Histograms[i]
-		log.Printf("num buckets %v", len(histogram.Info))
+		period.Updated = now
 		quantiles := make([]api.Quantile, len(histogram.Info))
 		for j, info := range histogram.Info {
 			quantiles[j].Count = new(int)
 			*quantiles[j].Count = info.Count
-			quantiles[j].Percentage = float32(info.Count) / float32(histogram.Count)
+			if histogram.Count > 0 {
+				quantiles[j].Percentage = float32(info.Count) / float32(histogram.Count)
+			} else {
+				quantiles[j].Percentage = 0.0
+			}
 			quantiles[j].Threshold = s.Request.Quantiles[j].Threshold
 			quantiles[j].Name = s.Request.Quantiles[j].Name
 		}
@@ -107,6 +109,8 @@ func (s *GlucoseSummarizer) Summary() []api.GlucoseSummary {
 				Quantiles: quantiles,
 			},
 		}
+
 	}
+	log.Printf("reports %v", reports)
 	return reports
 }

@@ -17,7 +17,6 @@ WORKDIR /go/src/github.com/tidepool-org/summary
 COPY . .
 
 ENV GO111MODULE=on
-RUN ls
 RUN go mod download
 
 

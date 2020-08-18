@@ -47,6 +47,7 @@ func (c *SummaryServer) PostV1ClinicsCliniidSummary(ctx echo.Context, clinicid s
 }
 
 //DateRange provide the times needed to produce the reports
+//TODO round ranges
 func DateRange(req api.SummaryRequest) (from, to time.Time) {
 	var numDays int
 	if req.Period.Length == "day" {
@@ -63,11 +64,26 @@ func DateRange(req api.SummaryRequest) (from, to time.Time) {
 // (POST /v1/users/{userid}/summary)
 func (c *SummaryServer) PostV1UsersUseridSummary(ctx echo.Context, userid string) error {
 	var summaryRequest api.SummaryRequest
-
 	if err := ctx.Bind(&summaryRequest); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "error parsing parameters")
 	}
 
-	summaryResponse := api.SummaryResponse{}
-	return ctx.JSON(http.StatusOK, &summaryResponse)
+	summarizer := summarizer.NewSummarizer(summaryRequest)
+	from, to := DateRange(summaryRequest)
+	ch := make(chan bgprovider.BG)
+
+	go c.Provider.Get(ctx.Request().Context(), from, to, ch, false)
+
+	for {
+		select {
+		case <-ctx.Request().Context().Done():
+			return ctx.JSON(http.StatusRequestTimeout, nil)
+		case bg, ok := <-ch:
+			if !ok {
+				summary := summarizer.Summary()
+				return ctx.JSON(http.StatusOK, &summary)
+			}
+			summarizer.Process(bg)
+		}
+	}
 }

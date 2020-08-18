@@ -2,10 +2,16 @@ package bgprovider
 
 import (
 	"context"
+	"math/rand"
 	"time"
 
 	"github.com/tidepool-org/summary/api"
 	"github.com/tidepool-org/summary/data"
+)
+
+const (
+	//Layout is how time is represented
+	Layout = "2006-01-02T15:04:05Z"
 )
 
 //BG is a data record, usual cbg, bg, or upload
@@ -39,7 +45,7 @@ func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch
 		Base: data.Base{
 			Active:   true,
 			DeviceID: PStr("foo"),
-			Time:     PStr("2020-07-11T08:29:02Z"),
+			Time:     PStr("2020-08-18T08:29:02Z"),
 			Type:     "upload",
 			UploadID: PStr("xyz"),
 			UserID:   PStr("foo"),
@@ -54,17 +60,26 @@ func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch
 			DeviceSerialNumber:  PStr("0xfeedbeef"),
 		},
 	}
-	ch <- data.Blood{
-		Base: data.Base{
-			Active:   true,
-			DeviceID: PStr("foo"),
-			Time:     PStr("2020-07-11T08:29:02Z"),
-			Type:     "cbg",
-			UploadID: PStr("xyz"),
-			UserID:   PStr("foo"),
-		},
-		Units: PStr("mg/dl"),
-		Value: PF64(130.0),
+
+	duration := int(to.Sub(from).Minutes())
+
+	for i := 0; i < 1000; i++ {
+		t := rand.Intn(duration)
+		d := from.Add(time.Duration(t) * time.Minute)
+		bg := rand.Float64()*250.0 + 30.0
+		ch <- data.Blood{
+			Base: data.Base{
+				Active:   true,
+				DeviceID: PStr("foo"),
+				Time:     PStr(d.Format(Layout)),
+				Type:     "cbg",
+				UploadID: PStr("xyz"),
+				UserID:   PStr("foo"),
+			},
+			Units: PStr("mg/dl"),
+			Value: PF64(bg),
+		}
 	}
+
 	close(ch)
 }
