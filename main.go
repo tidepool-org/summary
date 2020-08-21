@@ -60,16 +60,23 @@ func main() {
 	//authClient := AuthClient{store: dbstore}
 	//filterOptions := openapi3filter.Options{AuthenticationFunc: authClient.AuthenticationFunc}
 	//options := Options{Options: filterOptions}
+
+	loggerConfig := middleware.LoggerConfig{
+		Skipper: func(c echo.Context) bool {
+			return strings.HasPrefix(c.Path(), "/status")
+		},
+	}
+	e.Use(middleware.LoggerWithConfig(loggerConfig))
+
+	e.GET("/status", hello)
+
+	e.Use(middleware.Recover())
+
 	options := api.Options{
 		Skipper: func(c echo.Context) bool {
 			return strings.HasPrefix(c.Path(), "/status")
 		},
 	}
-	e.Use(middleware.Logger())
-
-	e.GET("/status", hello)
-
-	e.Use(middleware.Recover())
 	e.Use(api.OapiRequestValidatorWithOptions(swagger, &options))
 
 	// Register Handler
