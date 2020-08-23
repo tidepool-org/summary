@@ -175,11 +175,17 @@ type UserId string
 // PostV1ClinicsCliniidSummaryJSONBody defines parameters for PostV1ClinicsCliniidSummary.
 type PostV1ClinicsCliniidSummaryJSONBody SummaryRequest
 
+// PostV1UsersUseridSummariesJSONBody defines parameters for PostV1UsersUseridSummaries.
+type PostV1UsersUseridSummariesJSONBody SummaryRequest
+
 // PostV1UsersUseridSummaryJSONBody defines parameters for PostV1UsersUseridSummary.
 type PostV1UsersUseridSummaryJSONBody SummaryRequest
 
 // PostV1ClinicsCliniidSummaryRequestBody defines body for PostV1ClinicsCliniidSummary for application/json ContentType.
 type PostV1ClinicsCliniidSummaryJSONRequestBody PostV1ClinicsCliniidSummaryJSONBody
+
+// PostV1UsersUseridSummariesRequestBody defines body for PostV1UsersUseridSummaries for application/json ContentType.
+type PostV1UsersUseridSummariesJSONRequestBody PostV1UsersUseridSummariesJSONBody
 
 // PostV1UsersUseridSummaryRequestBody defines body for PostV1UsersUseridSummary for application/json ContentType.
 type PostV1UsersUseridSummaryJSONRequestBody PostV1UsersUseridSummaryJSONBody

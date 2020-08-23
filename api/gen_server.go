@@ -16,6 +16,9 @@ type ServerInterface interface {
 	// (POST /v1/clinics/{clinicid}/summaries)
 	PostV1ClinicsCliniidSummary(ctx echo.Context, clinicid string) error
 
+	// (POST /v1/users/{userid}/summaries)
+	PostV1UsersUseridSummaries(ctx echo.Context, userid string) error
+
 	// (POST /v1/users/{userid}/summary)
 	PostV1UsersUseridSummary(ctx echo.Context, userid string) error
 }
@@ -36,8 +39,26 @@ func (w *ServerInterfaceWrapper) PostV1ClinicsCliniidSummary(ctx echo.Context) e
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter clinicid: %s", err))
 	}
 
+	ctx.Set("sessionToken.Scopes", []string{""})
+
 	// Invoke the callback with all the unmarshalled arguments
 	err = w.Handler.PostV1ClinicsCliniidSummary(ctx, clinicid)
+	return err
+}
+
+// PostV1UsersUseridSummaries converts echo context to params.
+func (w *ServerInterfaceWrapper) PostV1UsersUseridSummaries(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "userid" -------------
+	var userid string
+
+	err = runtime.BindStyledParameter("simple", false, "userid", ctx.Param("userid"), &userid)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter userid: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.PostV1UsersUseridSummaries(ctx, userid)
 	return err
 }
 
@@ -80,6 +101,7 @@ func RegisterHandlers(router EchoRouter, si ServerInterface) {
 	}
 
 	router.POST("/v1/clinics/:clinicid/summaries", wrapper.PostV1ClinicsCliniidSummary)
+	router.POST("/v1/users/:userid/summaries", wrapper.PostV1UsersUseridSummaries)
 	router.POST("/v1/users/:userid/summary", wrapper.PostV1UsersUseridSummary)
 
 }

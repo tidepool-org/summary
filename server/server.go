@@ -19,6 +19,40 @@ type SummaryServer struct {
 
 var _ api.ServerInterface = &SummaryServer{} // confirms that interface is implemented
 
+// PostV1UsersUseridSummaries provides summaries for a given user
+// (POST /v1/users/{userid}/summaries)
+func (c *SummaryServer) PostV1UsersUseridSummaries(ctx echo.Context, clinicid string) error {
+	var summaryRequest api.SummaryRequest
+
+	if err := ctx.Bind(&summaryRequest); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "error parsing parameters")
+	}
+
+	summarizer := summarizer.NewSummarizer(summaryRequest)
+	from, to := DateRange(summaryRequest)
+	ch := make(chan bgprovider.BG)
+
+	userids := make([]string, rand.Intn(10))
+	for i := range userids {
+		userids[i] = fmt.Sprintf("user%d", i)
+	}
+
+	go c.Provider.Get(ctx.Request().Context(), from, to, ch, false, userids)
+
+	for {
+		select {
+		case <-ctx.Request().Context().Done():
+			return ctx.JSON(http.StatusRequestTimeout, nil)
+		case bg, ok := <-ch:
+			if !ok {
+				summary := summarizer.Summary()
+				return ctx.JSON(http.StatusOK, &summary)
+			}
+			summarizer.Process(bg)
+		}
+	}
+}
+
 // PostV1ClinicsCliniidSummary provides summaries for clinicians
 // (POST /v1/clinics/{clinicid}/summaries)
 func (c *SummaryServer) PostV1ClinicsCliniidSummary(ctx echo.Context, clinicid string) error {
