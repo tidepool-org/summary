@@ -3,16 +3,22 @@ package bgprovider
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
 	"github.com/tidepool-org/summary/api"
 	"github.com/tidepool-org/summary/data"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
-	//Layout is how time is represented
+	//Layout is how time is represented in the API
 	Layout = "2006-01-02T15:04:05Z"
+	//MongoTimeLayout is how time is represented in Mongo
+	MongoTimeLayout = "2006-01-02T15:04:05.999Z"
 )
 
 //BG is a data record, usual cbg, bg, or upload
@@ -88,4 +94,105 @@ func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch
 	}
 
 	close(ch)
+}
+
+// MongoProvider provides individual blood glucose values for a list of userids
+type MongoProvider struct {
+	Client *mongo.Client
+}
+
+var _ BGProvider = &MongoProvider{}
+
+//NewMongoProvider creates a new MongoProvider that uses the given Mongo client
+func NewMongoProvider(client *mongo.Client) *MongoProvider {
+	return &MongoProvider{
+		Client: client,
+	}
+}
+
+//Get provide blood glucose and upload values on a channel, close channel when no more values
+// provide uploads BEFORE blood glucose that refers to them
+func (b *MongoProvider) Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BG, continuous bool, users []string) {
+	b.GetDeviceData(ctx, from, to, ch, users)
+	close(ch)
+}
+
+//SharerIds returns the user ids of accounts that are shared with the given user via old-style sharing
+func (b *MongoProvider) SharerIds(ctx context.Context, userID string) ([]string, error) {
+	perms := b.Client.Database("gatekeeper").Collection("perms")
+	sharerIds, err := perms.Distinct(ctx, "sharedId", bson.M{"userId": userID, "active": true})
+
+	type Share struct {
+		ID string `bson:"sharerId"`
+	}
+	ids := make([]string, len(sharerIds))
+	for i, id := range sharerIds {
+		ids[i] = id.(Share).ID
+	}
+	return ids, err
+}
+
+//GetUpload returns the upload record with the given uploadID
+func (b *MongoProvider) GetUpload(ctx context.Context, deviceData *mongo.Collection, uploadID string) (*data.Upload, error) {
+	singleResult := deviceData.FindOne(ctx,
+		bson.M{
+			"type":     "upload",
+			"uploadId": uploadID,
+		})
+	var val data.Upload
+	if err := singleResult.Decode(&val); err != nil {
+		return nil, err
+	}
+	return &val, nil
+}
+
+//GetDeviceData sends device data for given userIds over given time period to given channel
+func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time, ch chan<- BG, userIds []string) {
+
+	deviceData := b.Client.Database("data").Collection("deviceData")
+
+	projection := new(options.FindOptions).SetProjection(bson.M{
+		"userId":   1,
+		"type":     1,
+		"value":    1,
+		"units":    1,
+		"time":     1,
+		"uploadId": 1,
+	})
+
+	startTime := start.Format(MongoTimeLayout)
+	endTime := end.Format(MongoTimeLayout)
+
+	cursor, err := deviceData.Find(ctx,
+		bson.M{
+			"userId": bson.M{"$in": userIds},
+			"time":   bson.M{"$gte": startTime, "$lt": endTime},
+			"type":   bson.M{"$in": []string{"cbg", "smbg"}},
+		},
+		projection)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	seen := make(map[string]bool)
+	for cursor.Next(ctx) {
+		var bg data.Blood
+		if err := cursor.Decode(&bg); err != nil {
+			log.Printf("error decoding bg %v", err)
+			continue
+		}
+		if bg.UploadID != nil {
+			if !seen[*bg.UploadID] {
+				upload, err := b.GetUpload(ctx, deviceData, *bg.UploadID)
+				if err != nil {
+					log.Printf("error decoding upload %v", err)
+					continue
+				}
+				ch <- *upload
+				seen[*bg.UploadID] = true
+			}
+			ch <- bg
+		}
+	}
 }

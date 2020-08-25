@@ -174,3 +174,134 @@ func (d MongoStoreClient) Aggregate(ctx context.Context, collection string, pipe
 	log.Println("Aggregate:", data)
 	return nil
 }
+
+/*
+
+	pipeline := bson.M{
+		"$bucket": bson.M{
+			"groupBy": bson.M{"$group": bson.M{
+				"userId": bson.M{"userId": 1},
+				"period": bson.M{},
+			}},
+			"boundaries": []float64{0.0, 54.0, 70.0, 180.0, 250.0, 1000.0},
+			"output": bson.M{
+				"mean":  bson.M{"$avg": "$value"},
+				"count": bson.M{"$count": "1"},
+			},
+		},
+	}
+
+	deviceData.Aggregate(ctx, pipeline)
+
+	return nil
+}
+
+// parse date string to date object
+{
+   "$addFields":{
+      "date":{
+         "$dateFromString":{
+            "dateString":"$time"
+         }
+      }
+   }
+}
+
+
+// select records with bg values measured in mmol/L
+{
+   "$match":{
+      "value":{
+         "$exists":true
+      },
+      "units":{
+         "$eq":"mmol/L"
+      },
+      "type":{
+         "$in":[
+            "smbg",
+            "cbg"
+         ]
+      }
+   }
+}
+
+// bucket by day
+{
+   "$addFields":{
+      "bucket":{
+         "$add":[
+            {
+               "$dayOfYear":"$date"
+            },
+            {
+               "$multiply":[
+                  400,
+                  {
+                     "$year":"$date"
+                  }
+               ]
+            }
+         ]
+      }
+   }
+}
+
+// bucket
+{
+	 "$bucket" : {
+		 "groupBy": "$value",
+		 "boundaries" : [ 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 100.0 ],
+		 "output" : {
+			 "count" : { "$sum" : 1 }
+		 }
+	 }
+}
+
+
+// count by day
+{
+   "$group":{
+      "_id":{
+         "$add":[
+            {
+               "$dayOfYear":"$date"
+            },
+            {
+               "$multiply":[
+                  400,
+                  {
+                     "$year":"$date"
+                  }
+               ]
+            }
+         ]
+      },
+      "click":{
+         "$sum":1
+      },
+      "first":{
+         "$min":"$date"
+      }
+   }
+}
+
+// bucket by day
+{
+   "$project":{
+      "dayOfYear":{
+         "$mod":[
+            "$_id",
+            400
+         ]
+      },
+      "dayOfWeek":{
+         "$dayOfWeek":"$date"
+      },
+      "year":{
+         "$year":"$date"
+      }
+   }
+}
+
+*/
