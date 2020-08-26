@@ -27,18 +27,22 @@ func (a *ActivitySummarizer) Process(upload *data.Upload) {
 		DeviceSerialNumber:  upload.DeviceSerialNumber,
 	}
 
-	uploadTime, err := time.Parse(Layout, *upload.Time)
-	if err != nil {
-		log.Printf("cannot parse time %v", upload.Time)
-		return
+	var uploadTime time.Time
+	var err error
+	if upload.Time != nil {
+		uploadTime, err = time.Parse(Layout, *upload.Time)
+		if err != nil {
+			log.Printf("cannot parse time %v", upload.Time)
+			return
+		}
 	}
 
 	found := false
 	for _, u := range a.Usage {
-		if reflect.DeepEqual(u.Device, device) &&
+		if reflect.DeepEqual(u.Device, &device) &&
 			reflect.DeepEqual(u.Client, upload.Client) &&
 			u.Event.Type == upload.Type {
-			if u.Event.Time.Before(uploadTime) {
+			if upload.Time != nil && u.Event.Time.Before(uploadTime) {
 				u.Event.Time = uploadTime
 			}
 			found = true

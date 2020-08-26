@@ -50,13 +50,14 @@ func (s *Summarizer) Process(rec interface{}) {
 		if v.UserID != nil {
 			s.SummaryForUser(*v.UserID).Activity.Process(&v)
 		} else {
-			log.Printf("missing userid %v", v)
+			log.Printf("upload missing userid : userid  %v uploadid %v", v.Base.UserID, *v.Base.UploadID)
 		}
 	case data.Blood:
 		if v.UserID != nil {
 			s.SummaryForUser(*v.UserID).Glucose.Process(&v)
 		} else {
-			log.Printf("missing userid %v", v)
+			log.Printf("blood missing userid : userid  %v uploadid %v", v.Base.UserID, *v.Base.UploadID)
+
 		}
 	default:
 		log.Printf("skipping  %v \n", v)

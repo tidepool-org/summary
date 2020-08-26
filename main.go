@@ -88,6 +88,11 @@ func main() {
 		log.Fatalln("NewMongoStoreClient: cannot create client:", err)
 	}
 
+	client.Connect(context.Background())
+	err = client.Ping(context.Background(), nil)
+	if err != nil {
+		log.Fatalf("could not ping client %v", err)
+	}
 	mongoProvider := dataprovider.NewMongoProvider(client)
 	sharerProvider := dataprovider.NewMongoShareProvider(client)
 	summaryServer := server.NewSummaryServer(mongoProvider, sharerProvider)

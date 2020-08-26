@@ -18,7 +18,7 @@ const (
 	//Layout is how time is represented in the API
 	Layout = "2006-01-02T15:04:05Z"
 	//MongoTimeLayout is how time is represented in Mongo
-	MongoTimeLayout = "2006-01-02T15:04:05.999Z"
+	MongoTimeLayout = "2006-01-02T15:04:05.000Z"
 )
 
 //BG is a data record, usual cbg, bg, or upload
@@ -128,16 +128,18 @@ func (b *MongoProvider) GetUpload(ctx context.Context, deviceData *mongo.Collect
 	if err := singleResult.Decode(&val); err != nil {
 		return nil, err
 	}
+	log.Printf("returned uploadID %v at time %v", val.Base.UploadID, val.Base.Time)
 	return &val, nil
 }
 
 //GetDeviceData sends device data for given userIds over given time period to given channel
 func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time, ch chan<- BG, userIds []string) {
 
+	log.Printf("GetDeviceData")
 	deviceData := b.Client.Database("data").Collection("deviceData")
 
 	projection := new(options.FindOptions).SetProjection(bson.M{
-		"userId":   1,
+		"_userId":  1,
 		"type":     1,
 		"value":    1,
 		"units":    1,
@@ -148,11 +150,15 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 	startTime := start.Format(MongoTimeLayout)
 	endTime := end.Format(MongoTimeLayout)
 
+	log.Printf("startTime %s", startTime)
+	log.Printf("endTime %s", endTime)
+	log.Printf("Userids %v", userIds)
+
 	cursor, err := deviceData.Find(ctx,
 		bson.M{
-			"userId": bson.M{"$in": userIds},
-			"time":   bson.M{"$gte": startTime, "$lt": endTime},
-			"type":   bson.M{"$in": []string{"cbg", "smbg"}},
+			"_userId": bson.M{"$in": userIds},
+			//"time":    bson.M{"$gte": startTime, "$lt": endTime},
+			"type": bson.M{"$in": []string{"cbg", "smbg"}},
 		},
 		projection)
 
