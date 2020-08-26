@@ -135,7 +135,6 @@ func (b *MongoProvider) GetUpload(ctx context.Context, deviceData *mongo.Collect
 //GetDeviceData sends device data for given userIds over given time period to given channel
 func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time, ch chan<- BG, userIds []string) {
 
-	log.Printf("GetDeviceData")
 	deviceData := b.Client.Database("data").Collection("deviceData")
 
 	projection := new(options.FindOptions).SetProjection(bson.M{
@@ -157,8 +156,8 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 	cursor, err := deviceData.Find(ctx,
 		bson.M{
 			"_userId": bson.M{"$in": userIds},
-			//"time":    bson.M{"$gte": startTime, "$lt": endTime},
-			"type": bson.M{"$in": []string{"cbg", "smbg"}},
+			"time":    bson.M{"$gte": startTime, "$lt": endTime},
+			"type":    bson.M{"$in": []string{"cbg", "smbg"}},
 		},
 		projection)
 
@@ -174,14 +173,15 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 			continue
 		}
 		if bg.UploadID != nil {
-			if !seen[*bg.UploadID] {
-				upload, err := b.GetUpload(ctx, deviceData, *bg.UploadID)
+			uploadID := *bg.UploadID
+			if !seen[uploadID] {
+				seen[uploadID] = true
+				upload, err := b.GetUpload(ctx, deviceData, uploadID)
 				if err != nil {
-					log.Printf("error decoding upload %v", err)
+					log.Printf("error decoding upload %v: %v", uploadID, err)
 					continue
 				}
 				ch <- *upload
-				seen[*bg.UploadID] = true
 			}
 			ch <- bg
 		}
