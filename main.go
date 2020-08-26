@@ -13,7 +13,7 @@ import (
 	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/tidepool-org/summary/api"
-	"github.com/tidepool-org/summary/bgprovider"
+	"github.com/tidepool-org/summary/dataprovider"
 	"github.com/tidepool-org/summary/server"
 	"github.com/tidepool-org/summary/store"
 
@@ -88,8 +88,8 @@ func main() {
 		log.Fatalln("NewMongoStoreClient: cannot create client:", err)
 	}
 
-	mongoProvider := bgprovider.NewMongoProvider(client)
-	sharerProvider := bgprovider.NewOldStyleShareProvider(client)
+	mongoProvider := dataprovider.NewMongoProvider(client)
+	sharerProvider := dataprovider.NewMongoShareProvider(client)
 	summaryServer := server.NewSummaryServer(mongoProvider, sharerProvider)
 
 	// Register Handler

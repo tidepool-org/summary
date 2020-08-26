@@ -1,4 +1,4 @@
-package bgprovider
+package dataprovider
 
 import (
 	"context"
@@ -26,7 +26,7 @@ type BG interface{}
 
 //BGProvider provides a sequence of blood glucose readings
 type BGProvider interface {
-	Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BG, continuous bool, users []string)
+	Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BG, users []string)
 }
 
 // MockProvider provides a static sequence of BG values
@@ -48,7 +48,7 @@ func PF64(x float64) *float64 {
 
 //Get provide blood glucose and upload values on a channel, close channel when no more values
 // provide uploads BEFORE blood glucose that refers to them
-func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BG, continuous bool, users []string) {
+func (b *MockProvider) Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BG, users []string) {
 
 	duration := int(to.Sub(from).Minutes())
 
@@ -112,7 +112,7 @@ func NewMongoProvider(client *mongo.Client) *MongoProvider {
 
 //Get provide blood glucose and upload values on a channel, close channel when no more values
 // provide uploads BEFORE blood glucose that refers to them
-func (b *MongoProvider) Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BG, continuous bool, users []string) {
+func (b *MongoProvider) Get(ctx context.Context, from time.Time, to time.Time, ch chan<- BG, users []string) {
 	b.GetDeviceData(ctx, from, to, ch, users)
 	close(ch)
 }
@@ -180,38 +180,4 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 			ch <- bg
 		}
 	}
-}
-
-// ShareProvider provides a list of userIds of data storage accounts available to a given user
-type ShareProvider interface {
-	SharerIds(ctx context.Context, userID string) ([]string, error)
-}
-
-//OldStyleShareProvider provide accounts shared person to person
-type OldStyleShareProvider struct {
-	Client *mongo.Client
-}
-
-var _ ShareProvider = &OldStyleShareProvider{}
-
-//NewOldStyleShareProvider creates a new MongoProvider that uses the given Mongo client
-func NewOldStyleShareProvider(client *mongo.Client) *OldStyleShareProvider {
-	return &OldStyleShareProvider{
-		Client: client,
-	}
-}
-
-//SharerIds returns the user ids of accounts that are shared with the given user via old-style sharing
-func (b *OldStyleShareProvider) SharerIds(ctx context.Context, userID string) ([]string, error) {
-	perms := b.Client.Database("gatekeeper").Collection("perms")
-	sharerIds, err := perms.Distinct(ctx, "sharedId", bson.M{"userId": userID, "active": true})
-
-	type Share struct {
-		ID string `bson:"sharerId"`
-	}
-	ids := make([]string, len(sharerIds))
-	for i, id := range sharerIds {
-		ids[i] = id.(Share).ID
-	}
-	return ids, err
 }
