@@ -28,7 +28,7 @@ var _ api.ServerInterface = &SummaryServer{} // confirms that interface is imple
 
 // PostV1UsersUseridSummaries provides summaries for a given user
 // (POST /v1/users/{userid}/summaries)
-func (c *SummaryServer) PostV1UsersUseridSummaries(ctx echo.Context, userid string) error {
+func (c *SummaryServer) PostV1UsersUseridSummaries(ctx echo.Context, userID string) error {
 	var summaryRequest api.SummaryRequest
 
 	if err := ctx.Bind(&summaryRequest); err != nil {
@@ -38,7 +38,11 @@ func (c *SummaryServer) PostV1UsersUseridSummaries(ctx echo.Context, userid stri
 	summarizer := summarizer.NewSummarizer(summaryRequest)
 	from, to := DateRange(summaryRequest)
 
-	userids := []string{userid}
+	userids, err := c.ShareProvider.SharerIdsForUser(ctx.Request().Context(), userID)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, nil)
+	}
+
 	ch := make(chan dataprovider.BG)
 	go c.Provider.Get(ctx.Request().Context(), from, to, ch, userids)
 
@@ -114,11 +118,7 @@ func (c *SummaryServer) PostV1UsersUseridSummary(ctx echo.Context, userID string
 	summarizer := summarizer.NewSummarizer(summaryRequest)
 	from, to := DateRange(summaryRequest)
 
-	userids, err := c.ShareProvider.SharerIdsForUser(ctx.Request().Context(), userID)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, nil)
-	}
-
+	userids := []string{userID}
 	ch := make(chan dataprovider.BG)
 	go c.Provider.Get(ctx.Request().Context(), from, to, ch, userids)
 
