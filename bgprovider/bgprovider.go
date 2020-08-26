@@ -117,21 +117,6 @@ func (b *MongoProvider) Get(ctx context.Context, from time.Time, to time.Time, c
 	close(ch)
 }
 
-//SharerIds returns the user ids of accounts that are shared with the given user via old-style sharing
-func (b *MongoProvider) SharerIds(ctx context.Context, userID string) ([]string, error) {
-	perms := b.Client.Database("gatekeeper").Collection("perms")
-	sharerIds, err := perms.Distinct(ctx, "sharedId", bson.M{"userId": userID, "active": true})
-
-	type Share struct {
-		ID string `bson:"sharerId"`
-	}
-	ids := make([]string, len(sharerIds))
-	for i, id := range sharerIds {
-		ids[i] = id.(Share).ID
-	}
-	return ids, err
-}
-
 //GetUpload returns the upload record with the given uploadID
 func (b *MongoProvider) GetUpload(ctx context.Context, deviceData *mongo.Collection, uploadID string) (*data.Upload, error) {
 	singleResult := deviceData.FindOne(ctx,
@@ -195,4 +180,38 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 			ch <- bg
 		}
 	}
+}
+
+// ShareProvider provides a list of userIds of data storage accounts available to a given user
+type ShareProvider interface {
+	SharerIds(ctx context.Context, userID string) ([]string, error)
+}
+
+//OldStyleShareProvider provide accounts shared person to person
+type OldStyleShareProvider struct {
+	Client *mongo.Client
+}
+
+var _ ShareProvider = &OldStyleShareProvider{}
+
+//NewOldStyleShareProvider creates a new MongoProvider that uses the given Mongo client
+func NewOldStyleShareProvider(client *mongo.Client) *OldStyleShareProvider {
+	return &OldStyleShareProvider{
+		Client: client,
+	}
+}
+
+//SharerIds returns the user ids of accounts that are shared with the given user via old-style sharing
+func (b *OldStyleShareProvider) SharerIds(ctx context.Context, userID string) ([]string, error) {
+	perms := b.Client.Database("gatekeeper").Collection("perms")
+	sharerIds, err := perms.Distinct(ctx, "sharedId", bson.M{"userId": userID, "active": true})
+
+	type Share struct {
+		ID string `bson:"sharerId"`
+	}
+	ids := make([]string, len(sharerIds))
+	for i, id := range sharerIds {
+		ids[i] = id.(Share).ID
+	}
+	return ids, err
 }

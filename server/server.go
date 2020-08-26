@@ -1,8 +1,6 @@
 package server
 
 import (
-	"fmt"
-	"math/rand"
 	"net/http"
 	"time"
 
@@ -14,14 +12,23 @@ import (
 
 //SummaryServer provides summaries as a service
 type SummaryServer struct {
-	Provider bgprovider.BGProvider
+	Provider      bgprovider.BGProvider
+	ShareProvider bgprovider.ShareProvider
+}
+
+// NewSummaryServer Create a new summary service
+func NewSummaryServer(provider bgprovider.BGProvider, shareProvider bgprovider.ShareProvider) *SummaryServer {
+	return &SummaryServer{
+		Provider:      provider,
+		ShareProvider: shareProvider,
+	}
 }
 
 var _ api.ServerInterface = &SummaryServer{} // confirms that interface is implemented
 
 // PostV1UsersUseridSummaries provides summaries for a given user
 // (POST /v1/users/{userid}/summaries)
-func (c *SummaryServer) PostV1UsersUseridSummaries(ctx echo.Context, clinicid string) error {
+func (c *SummaryServer) PostV1UsersUseridSummaries(ctx echo.Context, userid string) error {
 	var summaryRequest api.SummaryRequest
 
 	if err := ctx.Bind(&summaryRequest); err != nil {
@@ -30,13 +37,9 @@ func (c *SummaryServer) PostV1UsersUseridSummaries(ctx echo.Context, clinicid st
 
 	summarizer := summarizer.NewSummarizer(summaryRequest)
 	from, to := DateRange(summaryRequest)
+
+	userids := []string{userid}
 	ch := make(chan bgprovider.BG)
-
-	userids := make([]string, rand.Intn(10))
-	for i := range userids {
-		userids[i] = fmt.Sprintf("user%d", i)
-	}
-
 	go c.Provider.Get(ctx.Request().Context(), from, to, ch, false, userids)
 
 	for {
@@ -64,13 +67,9 @@ func (c *SummaryServer) PostV1ClinicsCliniidSummary(ctx echo.Context, clinicid s
 
 	summarizer := summarizer.NewSummarizer(summaryRequest)
 	from, to := DateRange(summaryRequest)
+
+	userids := []string{clinicid}
 	ch := make(chan bgprovider.BG)
-
-	userids := make([]string, rand.Intn(10))
-	for i := range userids {
-		userids[i] = fmt.Sprintf("user%d", i)
-	}
-
 	go c.Provider.Get(ctx.Request().Context(), from, to, ch, false, userids)
 
 	for {
@@ -111,9 +110,14 @@ func (c *SummaryServer) PostV1UsersUseridSummary(ctx echo.Context, userid string
 
 	summarizer := summarizer.NewSummarizer(summaryRequest)
 	from, to := DateRange(summaryRequest)
-	ch := make(chan bgprovider.BG)
 
-	go c.Provider.Get(ctx.Request().Context(), from, to, ch, false, []string{userid})
+	userids, err := c.ShareProvider.SharerIds(ctx.Request().Context(), userid)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, nil)
+	}
+
+	ch := make(chan bgprovider.BG)
+	go c.Provider.Get(ctx.Request().Context(), from, to, ch, false, userids)
 
 	for {
 		select {

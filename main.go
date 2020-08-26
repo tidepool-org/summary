@@ -9,10 +9,13 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"go.mongodb.org/mongo-driver/mongo"
+	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/tidepool-org/summary/api"
 	"github.com/tidepool-org/summary/bgprovider"
 	"github.com/tidepool-org/summary/server"
+	"github.com/tidepool-org/summary/store"
 
 	"net/http"
 	"os"
@@ -79,8 +82,18 @@ func main() {
 	}
 	e.Use(api.OapiRequestValidatorWithOptions(swagger, &options))
 
+	uriProvider := store.NewMongoURIProviderFromEnv()
+	client, err := mongo.NewClient(mongoOptions.Client().ApplyURI(uriProvider.URI()))
+	if err != nil {
+		log.Fatalln("NewMongoStoreClient: cannot create client:", err)
+	}
+
+	mongoProvider := bgprovider.NewMongoProvider(client)
+	sharerProvider := bgprovider.NewOldStyleShareProvider(client)
+	summaryServer := server.NewSummaryServer(mongoProvider, sharerProvider)
+
 	// Register Handler
-	api.RegisterHandlers(e, &server.SummaryServer{Provider: &bgprovider.MockProvider{}})
+	api.RegisterHandlers(e, summaryServer)
 
 	// Start server
 	e.Logger.Printf("Starting Server at: %s\n", config.Address)
