@@ -17,8 +17,6 @@ import (
 const (
 	//Layout is how time is represented in the API
 	Layout = "2006-01-02T15:04:05Z"
-	//MongoTimeLayout is how time is represented in Mongo
-	MongoTimeLayout = "2006-01-02T15:04:05.000Z"
 )
 
 //BG is a data record, usual cbg, bg, or upload
@@ -146,18 +144,19 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 		"uploadId": 1,
 	})
 
-	startTime := start.Format(MongoTimeLayout)
-	endTime := end.Format(MongoTimeLayout)
+	startTime := start.Format(time.RFC3339)
+	endTime := end.Format(time.RFC3339)
 
 	log.Printf("startTime %s", startTime)
 	log.Printf("endTime %s", endTime)
 	log.Printf("Userids %v", userIds)
 
 	cursor, err := deviceData.Find(ctx,
-		bson.M{
-			"_userId": bson.M{"$in": userIds},
-			"time":    bson.M{"$gte": startTime, "$lt": endTime},
-			"type":    bson.M{"$in": []string{"cbg", "smbg"}},
+		[]bson.M{
+			{"_userId": bson.M{"$in": userIds}},
+			{"time": bson.M{"$gte": startTime}},
+			{"time": bson.M{"$lt": endTime}},
+			{"type": bson.M{"$in": []string{"cbg", "smbg"}}},
 		},
 		projection)
 

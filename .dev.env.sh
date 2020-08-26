@@ -1,7 +1,0 @@
-  export TIDEPOOL_STORE_ADDRESSES="devcluster0-shard-00-00.ucpl6.mongodb.net:27017,devcluster0-shard-00-01.ucpl6.mongodb.net:27017,devcluster0-shard-00-02.ucpl6.mongodb.net:27017"
-  export TIDEPOOL_STORE_OPT_DATABASE="tidepool"
-  export TIDEPOOL_STORE_OPT_PARAMS="replicaSet=atlas-ne0az9-shard-0&authSource=admin&w=majority&readPreference=secondaryPreferred"
-  export TIDEPOOL_STORE_PASSWORD="M7VfgwGozpxSvql15bXvNYGb"
-  export TIDEPOOL_STORE_SCHEME="mongodb"
-  export TIDEPOOL_STORE_TLS="true"
-  export TIDEPOOL_STORE_USERNAME="tidepoolmongo-service-dev1"

@@ -4212,3 +4212,327 @@
 4566.5  14 | 2020-08-26T21:55:35+0000 [Poll#info] Checkpoint
 4580.7 TEL | [199] Running: sudo -n echo -n
 4580.7 TEL | [199] ran in 0.03 secs.
+4596.5 TEL | (proxy checking local liveness)
+4596.5  14 | 2020-08-26T21:56:05+0000 [Poll#info] Checkpoint
+4605.2  25 | c : DNS request from ('192.168.4.126', 24312) to None: 33 bytes
+4605.3  14 | 2020-08-26T21:56:14+0000 [stdout#info] A query: b'news.google.com'
+4605.3  14 | 2020-08-26T21:56:14+0000 [stdout#info] Result for b'news.google.com' is ['172.217.3.206']
+4610.8 TEL | [200] Running: sudo -n echo -n
+4610.9 TEL | [200] ran in 0.03 secs.
+4611.3  25 | c : DNS request from ('192.168.4.126', 41072) to None: 36 bytes
+4611.3  14 | 2020-08-26T21:56:20+0000 [stdout#info] A query: b'www.googleapis.com'
+4611.3  14 | 2020-08-26T21:56:20+0000 [stdout#info] Result for b'www.googleapis.com' is ['216.58.193.74', '172.217.14.202', '172.217.14.234']
+4618.6  25 | c : DNS request from ('192.168.4.126', 52959) to None: 32 bytes
+4618.6  14 | 2020-08-26T21:56:27+0000 [stdout#info] A query: b'imap.gmail.com'
+4618.6  14 | 2020-08-26T21:56:27+0000 [stdout#info] Result for b'imap.gmail.com' is ['173.194.202.109', '173.194.202.108']
+4619.1  25 | c : DNS request from ('192.168.4.126', 51203) to None: 36 bytes
+4619.1  14 | 2020-08-26T21:56:28+0000 [stdout#info] A query: b'www.googleapis.com'
+4619.1  14 | 2020-08-26T21:56:28+0000 [stdout#info] Result for b'www.googleapis.com' is ['172.217.14.202', '172.217.14.234', '216.58.193.74']
+4620.7  25 | c : DNS request from ('192.168.4.126', 57666) to None: 32 bytes
+4620.7  14 | 2020-08-26T21:56:29+0000 [stdout#info] A query: b'mesu.apple.com'
+4620.7  25 | c : DNS request from ('192.168.4.126', 59044) to None: 34 bytes
+4620.7  14 | 2020-08-26T21:56:29+0000 [stdout#info] Result for b'mesu.apple.com' is ['17.253.31.202', '17.253.31.204']
+4620.7  14 | 2020-08-26T21:56:29+0000 [stdout#info] A query: b'www.facebook.com'
+4620.7  14 | 2020-08-26T21:56:29+0000 [stdout#info] Result for b'www.facebook.com' is ['157.240.11.35']
+4621.4  25 | c : DNS request from ('192.168.4.126', 11533) to None: 46 bytes
+4621.5  14 | 2020-08-26T21:56:30+0000 [stdout#info] A query: b'scontent-sjc3-1.xx.fbcdn.net'
+4621.5  14 | 2020-08-26T21:56:30+0000 [stdout#info] Result for b'scontent-sjc3-1.xx.fbcdn.net' is ['157.240.22.25']
+4626.5 TEL | (proxy checking local liveness)
+4626.5  14 | 2020-08-26T21:56:35+0000 [Poll#info] Checkpoint
+4628.4  25 | c : DNS request from ('192.168.4.126', 59487) to None: 28 bytes
+4628.5  14 | 2020-08-26T21:56:37+0000 [stdout#info] A query: b'github.com'
+4628.5  14 | 2020-08-26T21:56:37+0000 [stdout#info] Result for b'github.com' is ['140.82.114.4']
+4640.9 TEL | [201] Running: sudo -n echo -n
+4641.0 TEL | [201] ran in 0.03 secs.
+4656.5 TEL | (proxy checking local liveness)
+4656.6  14 | 2020-08-26T21:57:05+0000 [Poll#info] Checkpoint
+4661.8 TEL | Main process (bash --norc)
+4661.8 TEL |  exited with code 0.
+4661.9 TEL | END SPAN runner.py:726(wait_for_exit) 4646.2s
+4661.9 >>> | Your process has exited.
+4661.9 TEL | EXITING successful session.
+4661.9 >>> | Exit cleanup in progress
+4661.9 TEL | (Cleanup) Terminate local process
+4661.9 TEL | Local process is already dead (ret=0)
+4661.9 TEL | (Cleanup) Kill BG process [25] sshuttle
+4661.9  25 | >> pfctl -a sshuttle6-12300 -F all
+4661.9 TEL | (Cleanup) Unmount remote filesystem
+4661.9 TEL | [202] Running: umount -f /tmp/tel-71b11c6s/fs
+4661.9  25 | >> pfctl -X 2758995430337139949
+4661.9  25 | >> pfctl -a sshuttle-12300 -F all
+4661.9  25 | >> pfctl -X 2758995430340308781
+4661.9  25 |  s: SW'unknown':Mux#854: deleting (27 remain)
+4661.9  25 |  s: SW#32:192.168.254.108:27017: deleting (26 remain)
+4661.9  25 |  s: SW'unknown':Mux#857: deleting (25 remain)
+4661.9  25 |  s: SW#36:192.168.248.235:27017: deleting (24 remain)
+4661.9  25 |  s: SW'unknown':Mux#864: deleting (23 remain)
+4661.9  25 |  s: SW#13:192.168.248.235:27017: deleting (22 remain)
+4661.9  25 |  s: SW'unknown':Mux#927: deleting (21 remain)
+4661.9  25 |  s: SW#8:192.168.248.235:27017: deleting (20 remain)
+4661.9  25 |  s: SW'unknown':Mux#928: deleting (19 remain)
+4661.9  25 |  s: SW#9:192.168.253.62:27017: deleting (18 remain)
+4661.9  25 |  s: SW'unknown':Mux#937: deleting (17 remain)
+4661.9  25 |  s: SW#7:192.168.248.235:27017: deleting (16 remain)
+4661.9  25 |  s: SW'unknown':Mux#946: deleting (15 remain)
+4661.9  25 |  s: SW#15:192.168.253.62:27017: deleting (14 remain)
+4661.9  25 |  s: SW'unknown':Mux#947: deleting (13 remain)
+4661.9  25 |  s: SW'unknown':Mux#948: deleting (12 remain)
+4661.9  25 |  s: SW#19:192.168.253.62:27017: deleting (11 remain)
+4661.9  25 |  s: SW'unknown':Mux#949: deleting (10 remain)
+4661.9  25 |  s: SW#20:192.168.254.108:27017: deleting (9 remain)
+4661.9  25 |  s: SW'unknown':Mux#950: deleting (8 remain)
+4661.9  25 |  s: SW#21:192.168.254.108:27017: deleting (7 remain)
+4661.9  25 |  s: SW'unknown':Mux#951: deleting (6 remain)
+4661.9  25 |  s: SW#22:192.168.248.235:27017: deleting (5 remain)
+4661.9  25 |  s: SW'unknown':Mux#953: deleting (4 remain)
+4661.9  25 |  s: SW#10:192.168.248.235:27017: deleting (3 remain)
+4661.9  25 |  s: SW'unknown':Mux#957: deleting (2 remain)
+4661.9  25 |  s: SW#6:192.168.253.62:27017: deleting (1 remain)
+4661.9  25 |  s: SW#18:192.168.248.235:27017: deleting (0 remain)
+4662.0 TEL | [25] sshuttle: exit -15
+4662.0 TEL | [202] ran in 0.08 secs.
+4662.0 TEL | (Cleanup) Kill BG process [21] SSH port forward (socks and proxy poll)
+4662.0 TEL | [21] SSH port forward (socks and proxy poll): exit 0
+4662.0 TEL | (Cleanup) Kill Web server for proxy poll
+4662.1 TEL | (Cleanup) Kill BG process [15] kubectl port-forward
+4662.1 TEL | [15] kubectl port-forward: exit -15
+4662.1 TEL | (Cleanup) Kill BG process [14] kubectl logs
+4662.1 TEL | [14] kubectl logs: exit -15
+4662.1 TEL | Background process (kubectl logs) exited with return code -15. Command was:
+4662.1 TEL |   kubectl --context dev.us-west-2 --namespace default logs -f telepresence-1598474369-114076-71443-76b9ffbd58-g2x42 --container telepresence-1598474369-114076-71443 --tail=10
+4662.1 TEL | 
+4662.1 TEL | Recent output was:
+4662.1 TEL |   2020-08-26T21:56:29+0000 [stdout#info] A query: b'mesu.apple.com'
+4662.1 TEL |   2020-08-26T21:56:29+0000 [stdout#info] Result for b'mesu.apple.com' is ['17.253.31.202', '17.253.31.204']
+4662.1 TEL |   2020-08-26T21:56:29+0000 [stdout#info] A query: b'www.facebook.com'
+4662.1 TEL |   2020-08-26T21:56:29+0000 [stdout#info] Result for b'www.facebook.com' is ['157.240.11.35']
+4662.1 TEL |   2020-08-26T21:56:30+0000 [stdout#info] A query: b'scontent-sjc3-1.xx.fbcdn.net'
+4662.1 TEL |   2020-08-26T21:56:30+0000 [stdout#info] Result for b'scontent-sjc3-1.xx.fbcdn.net' is ['157.240.22.25']
+4662.1 TEL |   2020-08-26T21:56:35+0000 [Poll#info] Checkpoint
+4662.1 TEL |   2020-08-26T21:56:37+0000 [stdout#info] A query: b'github.com'
+4662.1 TEL |   2020-08-26T21:56:37+0000 [stdout#info] Result for b'github.com' is ['140.82.114.4']
+4662.1 TEL |   2020-08-26T21:57:05+0000 [Poll#info] Checkpoint
+4662.1 TEL | (Cleanup) Delete new deployment
+4662.1 >>> | Cleaning up Deployment telepresence-1598474369-114076-71443
+4662.1 TEL | [203] Running: kubectl --context dev.us-west-2 --namespace default delete --ignore-not-found svc,deploy --selector=telepresence=620fdae8fb5a496f897477e71ef92807
+4665.2 203 | deployment.extensions "telepresence-1598474369-114076-71443" deleted
+4665.2 TEL | [203] ran in 3.15 secs.
+4665.2 TEL | (Cleanup) Kill sudo privileges holder
+4665.2 TEL | (Cleanup) Stop time tracking
+4665.2 TEL | END SPAN main.py:40(main) 4665.2s
+4665.2 TEL | SPAN SUMMARY:
+4665.2 TEL | 4665.2s main.py:40(main)
+4665.2 TEL |    2.2s   startup.py:83(set_kube_command)
+4665.2 TEL |    0.0s     1 kubectl config current-context
+4665.2 TEL |    0.7s     2 kubectl --context dev.us-west-2 version --short
+4665.2 TEL |    0.1s     3 kubectl --context dev.us-west-2 config view -o json
+4665.2 TEL |    0.7s     4 kubectl --context dev.us-west-2 get ns default
+4665.2 TEL |    0.7s     5 kubectl --context dev.us-west-2 api-versions
+4665.2 TEL |    0.0s   6 ssh -V
+4665.2 TEL |    0.0s   7 sudo -n echo -n
+4665.2 TEL |    0.6s   8 kubectl --context dev.us-west-2 --namespace default get pods telepresence-conn
+4665.2 TEL |    1.6s   deployment.py:182(create_new_deployment)
+4665.2 TEL |    0.7s     9 kubectl --context dev.us-west-2 --namespace default delete --ignore-not-found
+4665.2 TEL |    0.8s     10 kubectl --context dev.us-west-2 --namespace default create -f -
+4665.2 TEL |    2.0s   remote.py:142(get_remote_info)
+4665.2 TEL |    0.7s     remote.py:75(get_deployment_json)
+4665.2 TEL |    0.7s       11 kubectl --context dev.us-west-2 --namespace default get deployment -o json --
+4665.2 TEL |    0.7s     12 kubectl --context dev.us-west-2 --namespace default get pod -o json --selecto
+4665.2 TEL |    0.7s     remote.py:104(wait_for_pod)
+4665.2 TEL |    0.7s       13 kubectl --context dev.us-west-2 --namespace default get pod telepresence-1598
+4665.2 TEL |    1.5s   connect.py:37(connect)
+4665.2 TEL |    0.0s     16 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+4665.2 TEL |    0.0s     17 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+4665.2 TEL |    0.0s     18 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+4665.2 TEL |    0.0s     19 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+4665.2 TEL |    0.4s     20 ssh -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -q
+4665.2 TEL |    1.1s   remote_env.py:29(get_remote_env)
+4665.2 TEL |    1.1s     22 kubectl --context dev.us-west-2 --namespace default exec telepresence-1598474
+4665.2 TEL |    0.5s   mount.py:30(mount_remote_volumes)
+4665.2 TEL |    0.5s     23 sshfs -p 54101 -F /dev/null -oStrictHostKeyChecking=no -oUserKnownHostsFile=/
+4665.2 TEL |    4.2s   vpn.py:280(connect_sshuttle)
+4665.2 TEL |    1.1s     vpn.py:77(get_proxy_cidrs)
+4665.2 TEL |    1.1s       24 kubectl --context dev.us-west-2 --namespace default exec --container=telepres
+4665.2 TEL |    3.1s     vpn.py:303(connect_sshuttle,sshuttle-wait)
+4665.2 TEL |    0.1s       26 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-0")'
+4665.2 TEL |    0.1s       27 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-0.a.sanity
+4665.2 TEL |    0.1s       28 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-1")'
+4665.2 TEL |    0.1s       29 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-1.a.sanity
+4665.2 TEL |    0.1s       30 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-2")'
+4665.2 TEL |    0.1s       31 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-2.a.sanity
+4665.2 TEL |    0.1s       32 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-3")'
+4665.2 TEL |    0.1s       33 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-3.a.sanity
+4665.2 TEL |    0.1s       34 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-4")'
+4665.2 TEL |    0.1s       35 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-4.a.sanity
+4665.2 TEL |    0.1s       36 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-5")'
+4665.2 TEL |    0.1s       37 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-5.a.sanity
+4665.2 TEL |    0.1s       38 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-6")'
+4665.2 TEL |    0.1s       39 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-6.a.sanity
+4665.2 TEL |    0.1s       40 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-7")'
+4665.2 TEL |    0.1s       41 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-7.a.sanity
+4665.2 TEL |    0.1s       42 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-8")'
+4665.2 TEL |    0.1s       43 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-8.a.sanity
+4665.2 TEL |    0.1s       44 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-9")'
+4665.2 TEL |    0.1s       45 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-9.a.sanity
+4665.2 TEL |    0.1s       46 python3 -c 'import socket; socket.gethostbyname("hellotelepresence-10")'
+4665.2 TEL |    0.1s   47 sudo -n /usr/bin/pkill -HUP mDNSResponder
+4665.2 TEL | 4646.2s   runner.py:726(wait_for_exit)
+4665.2 TEL |    0.0s     48 sudo -n echo -n
+4665.2 TEL |    0.0s     49 sudo -n echo -n
+4665.2 TEL |    0.0s     50 sudo -n echo -n
+4665.2 TEL |    0.0s     51 sudo -n echo -n
+4665.2 TEL |    0.0s     52 sudo -n echo -n
+4665.2 TEL |    0.0s     53 sudo -n echo -n
+4665.2 TEL |    0.0s     54 sudo -n echo -n
+4665.2 TEL |    0.0s     55 sudo -n echo -n
+4665.2 TEL |    0.0s     56 sudo -n echo -n
+4665.2 TEL |    0.0s     57 sudo -n echo -n
+4665.2 TEL |    0.0s     58 sudo -n echo -n
+4665.2 TEL |    0.0s     59 sudo -n echo -n
+4665.2 TEL |    0.0s     60 sudo -n echo -n
+4665.2 TEL |    0.0s     61 sudo -n echo -n
+4665.2 TEL |    0.0s     62 sudo -n echo -n
+4665.2 TEL |    0.0s     63 sudo -n echo -n
+4665.2 TEL |    0.0s     64 sudo -n echo -n
+4665.2 TEL |    0.0s     65 sudo -n echo -n
+4665.2 TEL |    0.0s     66 sudo -n echo -n
+4665.2 TEL |    0.0s     67 sudo -n echo -n
+4665.2 TEL |    0.0s     68 sudo -n echo -n
+4665.2 TEL |    0.0s     69 sudo -n echo -n
+4665.2 TEL |    0.0s     70 sudo -n echo -n
+4665.2 TEL |    0.0s     71 sudo -n echo -n
+4665.2 TEL |    0.0s     72 sudo -n echo -n
+4665.2 TEL |    0.0s     73 sudo -n echo -n
+4665.2 TEL |    0.0s     74 sudo -n echo -n
+4665.2 TEL |    0.0s     75 sudo -n echo -n
+4665.2 TEL |    0.0s     76 sudo -n echo -n
+4665.2 TEL |    0.0s     77 sudo -n echo -n
+4665.2 TEL |    0.0s     78 sudo -n echo -n
+4665.2 TEL |    0.0s     79 sudo -n echo -n
+4665.2 TEL |    0.0s     80 sudo -n echo -n
+4665.2 TEL |    0.0s     81 sudo -n echo -n
+4665.2 TEL |    0.0s     82 sudo -n echo -n
+4665.2 TEL |    0.0s     83 sudo -n echo -n
+4665.2 TEL |    0.0s     84 sudo -n echo -n
+4665.2 TEL |    0.0s     85 sudo -n echo -n
+4665.2 TEL |    0.0s     86 sudo -n echo -n
+4665.2 TEL |    0.0s     87 sudo -n echo -n
+4665.2 TEL |    0.0s     88 sudo -n echo -n
+4665.2 TEL |    0.0s     89 sudo -n echo -n
+4665.2 TEL |    0.0s     90 sudo -n echo -n
+4665.2 TEL |    0.0s     91 sudo -n echo -n
+4665.2 TEL |    0.0s     92 sudo -n echo -n
+4665.2 TEL |    0.0s     93 sudo -n echo -n
+4665.2 TEL |    0.0s     94 sudo -n echo -n
+4665.2 TEL |    0.0s     95 sudo -n echo -n
+4665.2 TEL |    0.0s     96 sudo -n echo -n
+4665.2 TEL |    0.0s     97 sudo -n echo -n
+4665.2 TEL |    0.0s     98 sudo -n echo -n
+4665.2 TEL |    0.0s     99 sudo -n echo -n
+4665.2 TEL |    0.0s     100 sudo -n echo -n
+4665.2 TEL |    0.0s     101 sudo -n echo -n
+4665.2 TEL |    0.0s     102 sudo -n echo -n
+4665.2 TEL |    0.0s     103 sudo -n echo -n
+4665.2 TEL |    0.0s     104 sudo -n echo -n
+4665.2 TEL |    0.0s     105 sudo -n echo -n
+4665.2 TEL |    0.0s     106 sudo -n echo -n
+4665.2 TEL |    0.0s     107 sudo -n echo -n
+4665.2 TEL |    0.0s     108 sudo -n echo -n
+4665.2 TEL |    0.0s     109 sudo -n echo -n
+4665.2 TEL |    0.0s     110 sudo -n echo -n
+4665.2 TEL |    0.0s     111 sudo -n echo -n
+4665.2 TEL |    0.0s     112 sudo -n echo -n
+4665.2 TEL |    0.0s     113 sudo -n echo -n
+4665.2 TEL |    0.0s     114 sudo -n echo -n
+4665.2 TEL |    0.0s     115 sudo -n echo -n
+4665.2 TEL |    0.0s     116 sudo -n echo -n
+4665.2 TEL |    0.0s     117 sudo -n echo -n
+4665.2 TEL |    0.0s     118 sudo -n echo -n
+4665.2 TEL |    0.0s     119 sudo -n echo -n
+4665.2 TEL |    0.0s     120 sudo -n echo -n
+4665.2 TEL |    0.0s     121 sudo -n echo -n
+4665.2 TEL |    0.0s     122 sudo -n echo -n
+4665.2 TEL |    0.0s     123 sudo -n echo -n
+4665.2 TEL |    0.0s     124 sudo -n echo -n
+4665.2 TEL |    0.0s     125 sudo -n echo -n
+4665.2 TEL |    0.0s     126 sudo -n echo -n
+4665.2 TEL |    0.0s     127 sudo -n echo -n
+4665.2 TEL |    0.0s     128 sudo -n echo -n
+4665.2 TEL |    0.0s     129 sudo -n echo -n
+4665.2 TEL |    0.0s     130 sudo -n echo -n
+4665.2 TEL |    0.0s     131 sudo -n echo -n
+4665.2 TEL |    0.0s     132 sudo -n echo -n
+4665.2 TEL |    0.0s     133 sudo -n echo -n
+4665.2 TEL |    0.0s     134 sudo -n echo -n
+4665.2 TEL |    0.0s     135 sudo -n echo -n
+4665.2 TEL |    0.0s     136 sudo -n echo -n
+4665.2 TEL |    0.0s     137 sudo -n echo -n
+4665.2 TEL |    0.0s     138 sudo -n echo -n
+4665.2 TEL |    0.0s     139 sudo -n echo -n
+4665.2 TEL |    0.0s     140 sudo -n echo -n
+4665.2 TEL |    0.0s     141 sudo -n echo -n
+4665.2 TEL |    0.0s     142 sudo -n echo -n
+4665.2 TEL |    0.0s     143 sudo -n echo -n
+4665.2 TEL |    0.0s     144 sudo -n echo -n
+4665.2 TEL |    0.0s     145 sudo -n echo -n
+4665.2 TEL |    0.0s     146 sudo -n echo -n
+4665.2 TEL |    0.0s     147 sudo -n echo -n
+4665.2 TEL |    0.0s     148 sudo -n echo -n
+4665.2 TEL |    0.0s     149 sudo -n echo -n
+4665.2 TEL |    0.0s     150 sudo -n echo -n
+4665.2 TEL |    0.0s     151 sudo -n echo -n
+4665.2 TEL |    0.0s     152 sudo -n echo -n
+4665.2 TEL |    0.0s     153 sudo -n echo -n
+4665.2 TEL |    0.0s     154 sudo -n echo -n
+4665.2 TEL |    0.0s     155 sudo -n echo -n
+4665.2 TEL |    0.0s     156 sudo -n echo -n
+4665.2 TEL |    0.0s     157 sudo -n echo -n
+4665.2 TEL |    0.0s     158 sudo -n echo -n
+4665.2 TEL |    0.0s     159 sudo -n echo -n
+4665.2 TEL |    0.0s     160 sudo -n echo -n
+4665.2 TEL |    0.0s     161 sudo -n echo -n
+4665.2 TEL |    0.0s     162 sudo -n echo -n
+4665.2 TEL |    0.0s     163 sudo -n echo -n
+4665.2 TEL |    0.0s     164 sudo -n echo -n
+4665.2 TEL |    0.0s     165 sudo -n echo -n
+4665.2 TEL |    0.0s     166 sudo -n echo -n
+4665.2 TEL |    0.0s     167 sudo -n echo -n
+4665.2 TEL |    0.0s     168 sudo -n echo -n
+4665.2 TEL |    0.0s     169 sudo -n echo -n
+4665.2 TEL |    0.0s     170 sudo -n echo -n
+4665.2 TEL |    0.0s     171 sudo -n echo -n
+4665.2 TEL |    0.0s     172 sudo -n echo -n
+4665.2 TEL |    0.0s     173 sudo -n echo -n
+4665.2 TEL |    0.0s     174 sudo -n echo -n
+4665.2 TEL |    0.0s     175 sudo -n echo -n
+4665.2 TEL |    0.1s     176 sudo -n echo -n
+4665.2 TEL |    0.0s     177 sudo -n echo -n
+4665.2 TEL |    0.0s     178 sudo -n echo -n
+4665.2 TEL |    0.0s     179 sudo -n echo -n
+4665.2 TEL |    0.0s     180 sudo -n echo -n
+4665.2 TEL |    0.0s     181 sudo -n echo -n
+4665.2 TEL |    0.0s     182 sudo -n echo -n
+4665.2 TEL |    0.0s     183 sudo -n echo -n
+4665.2 TEL |    0.0s     184 sudo -n echo -n
+4665.2 TEL |    0.0s     185 sudo -n echo -n
+4665.2 TEL |    0.0s     186 sudo -n echo -n
+4665.2 TEL |    0.0s     187 sudo -n echo -n
+4665.2 TEL |    0.0s     188 sudo -n echo -n
+4665.2 TEL |    0.0s     189 sudo -n echo -n
+4665.2 TEL |    0.0s     190 sudo -n echo -n
+4665.2 TEL |    0.0s     191 sudo -n echo -n
+4665.2 TEL |    0.0s     192 sudo -n echo -n
+4665.2 TEL |    0.0s     193 sudo -n echo -n
+4665.2 TEL |    0.0s     194 sudo -n echo -n
+4665.2 TEL |    0.0s     195 sudo -n echo -n
+4665.2 TEL |    0.0s     196 sudo -n echo -n
+4665.2 TEL |    0.0s     197 sudo -n echo -n
+4665.2 TEL |    0.0s     198 sudo -n echo -n
+4665.2 TEL |    0.0s     199 sudo -n echo -n
+4665.2 TEL |    0.0s     200 sudo -n echo -n
+4665.2 TEL |    0.0s     201 sudo -n echo -n
+4665.2 TEL |    0.1s   202 umount -f /tmp/tel-71b11c6s/fs
+4665.2 TEL |    3.2s   203 kubectl --context dev.us-west-2 --namespace default delete --ignore-not-foun
+4665.2 TEL | (Cleanup) Remove temporary directory
+4665.4 TEL | (Cleanup) Save caches
+4666.1 TEL | (sudo privileges holder thread exiting)
