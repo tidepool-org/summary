@@ -74,7 +74,7 @@ func (s *GlucoseSummarizer) Summary() []api.GlucoseSummary {
 			quantiles[j].Count = new(int)
 			*quantiles[j].Count = info.Count
 			if histogram.Count > 0 {
-				quantiles[j].Percentage = float32(info.Count) / float32(histogram.Count)
+				quantiles[j].Percentage = (100.0 * float32(info.Count)) / float32(histogram.Count)
 			} else {
 				quantiles[j].Percentage = 0.0
 			}

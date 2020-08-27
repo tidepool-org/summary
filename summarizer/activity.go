@@ -27,10 +27,13 @@ func (a *ActivitySummarizer) Process(upload *data.Upload) {
 		DeviceSerialNumber:  upload.DeviceSerialNumber,
 	}
 
-	client := api.Client{
-		Name:     upload.Client.Name,
-		Platform: upload.Client.Platform,
-		Version:  upload.Client.Version,
+	var client api.Client
+	if upload.Client != nil {
+		client = api.Client{
+			Name:     upload.Client.Name,
+			Platform: upload.Client.Platform,
+			Version:  upload.Client.Version,
+		}
 	}
 
 	var uploadTime time.Time
