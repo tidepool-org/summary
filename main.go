@@ -5,12 +5,14 @@ import (
 	"log"
 	"strings"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.mongodb.org/mongo-driver/mongo"
 	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/fx"
 
 	"github.com/tidepool-org/summary/api"
 	"github.com/tidepool-org/summary/dataprovider"
@@ -18,10 +20,6 @@ import (
 	"github.com/tidepool-org/summary/store"
 
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 var (
@@ -48,21 +46,52 @@ func NewServiceConfigFromEnv() *ServiceConfig {
 
 //main is the main loop
 func main() {
+	fx.New(
+		fx.Provide(NewServiceConfigFromEnv),
+		fx.Provide(ProvideSwagger),
+		fx.Provide(store.NewMongoURIProviderFromEnv),
+		fx.Provide(ProvideMongoClient),
+		fx.Provide(dataprovider.NewMongoProvider),
+		fx.Provide(dataprovider.NewMongoShareProvider),
+		fx.Provide(server.NewSummaryServer),
+		fx.Invoke(ProvideEchoServer),
+		fx.Invoke(invokeHooks),
+	).Run()
+}
 
-	config := NewServiceConfigFromEnv()
-
-	// Echo instance
-	e := echo.New()
-	e.Logger.Print("Starting Main Loop")
+//ProvideSwagger provides a swagger
+func ProvideSwagger() (*openapi3.Swagger, error) {
 	swagger, err := api.GetSwagger()
 	if err != nil {
-		e.Logger.Fatal("Cound not get spec")
+		log.Fatalln("ProvideSwagger: cannot create swagger:", err)
 	}
+	return swagger, err
+}
+
+// ProvideMongoClient provides a mongo client that is reachable
+func ProvideMongoClient(uriProvider store.MongoURIProvider) (*mongo.Client, error) {
+	client, err := mongo.NewClient(mongoOptions.Client().ApplyURI(uriProvider.URI()))
+	if err != nil {
+		log.Fatalln("ProvideMongoClient: cannot create client:", err)
+	}
+	client.Connect(context.Background())
+	err = client.Ping(context.Background(), nil)
+	if err != nil {
+		log.Fatalf("ProvideMongoClient: could not ping mongo client %v", err)
+	}
+	return client, err
+}
+
+//ProvideEchoServer creates an Echo server with a default status endpoint and swagger validation of requests and responses
+func ProvideEchoServer(config *ServiceConfig, swagger *openapi3.Swagger) *echo.Echo {
+	e := echo.New()
 
 	// Middleware
 	//authClient := AuthClient{store: dbstore}
 	//filterOptions := openapi3filter.Options{AuthenticationFunc: authClient.AuthenticationFunc}
 	//options := Options{Options: filterOptions}
+
+	e.GET("/status", hello)
 
 	loggerConfig := middleware.LoggerConfig{
 		Skipper: func(c echo.Context) bool {
@@ -70,9 +99,6 @@ func main() {
 		},
 	}
 	e.Use(middleware.LoggerWithConfig(loggerConfig))
-
-	e.GET("/status", hello)
-
 	e.Use(middleware.Recover())
 
 	options := api.Options{
@@ -81,44 +107,34 @@ func main() {
 		},
 	}
 	e.Use(api.OapiRequestValidatorWithOptions(swagger, &options))
+	return e
+}
 
-	uriProvider := store.NewMongoURIProviderFromEnv()
-	client, err := mongo.NewClient(mongoOptions.Client().ApplyURI(uriProvider.URI()))
-	if err != nil {
-		log.Fatalln("NewMongoStoreClient: cannot create client:", err)
-	}
+func invokeHooks(lifecycle fx.Lifecycle, e *echo.Echo, config *ServiceConfig, summaryServer *server.SummaryServer) {
+	lifecycle.Append(
+		fx.Hook{
+			OnStart: func(context.Context) error {
+				// Register Handler
+				api.RegisterHandlers(e, summaryServer)
 
-	client.Connect(context.Background())
-	err = client.Ping(context.Background(), nil)
-	if err != nil {
-		log.Fatalf("could not ping client %v", err)
-	}
-	mongoProvider := dataprovider.NewMongoProvider(client)
-	sharerProvider := dataprovider.NewMongoShareProvider(client)
-	summaryServer := server.NewSummaryServer(mongoProvider, sharerProvider)
-
-	// Register Handler
-	api.RegisterHandlers(e, summaryServer)
-
-	// Start server
-	e.Logger.Printf("Starting Server at: %s\n", config.Address)
-	go func() {
-		if err := e.Start(config.Address); err != nil {
-			e.Logger.Info("shutting down the server")
-		}
-	}()
-
-	// Wait for interrupt signal to gracefully shutdown the server with
-	// a timeout of 10 seconds.
-	quit := make(chan os.Signal)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(ServerTimeoutAmount)*time.Second)
-	defer cancel()
-	if err := e.Shutdown(ctx); err != nil {
-		e.Logger.Fatal(err)
-	}
+				go func() {
+					// Start server
+					e.Logger.Printf("Starting Server at: %s\n", config.Address)
+					if err := e.Start(config.Address); err != nil {
+						e.Logger.Info("shutting down the server")
+					}
+				}()
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				if err := e.Shutdown(ctx); err != nil {
+					e.Logger.Fatal(err)
+					return err
+				}
+				return nil
+			},
+		},
+	)
 }
 
 // Handler

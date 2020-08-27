@@ -152,6 +152,7 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 	log.Printf("Userids %v", userIds)
 
 	filter := bson.M{
+		"_active": true,
 		"_userId": bson.M{"$in": userIds},
 		"time":    bson.M{"$gte": startTime, "$lt": endTime},
 		"type":    bson.M{"$in": []string{"cbg", "smbg"}}}
