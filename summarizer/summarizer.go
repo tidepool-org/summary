@@ -11,7 +11,7 @@ import (
 //UserSummarizer summarizes use activity
 type UserSummarizer struct {
 	Glucose  *GlucoseSummarizer
-	Activity ActivitySummarizer
+	Activity *ActivitySummarizer
 }
 
 //NewPeriods creates sample periods
@@ -57,7 +57,8 @@ func LastThousandDays(request api.SummaryRequest) []api.SummaryPeriod {
 func NewUserSummarizer(request api.SummaryRequest, periods []api.SummaryPeriod) *UserSummarizer {
 
 	return &UserSummarizer{
-		Glucose: NewGlucoseSummarizer(request, periods),
+		Glucose:  NewGlucoseSummarizer(request, periods),
+		Activity: NewActivitySummarizer(),
 	}
 }
 
@@ -73,8 +74,8 @@ func NewSummarizer(request api.SummaryRequest) *Summarizer {
 	return &Summarizer{
 		Request:   request,
 		Summaries: make(map[string]*UserSummarizer),
-		//Periods:   NewPeriods(request),
-		Periods: LastThousandDays(request),
+		Periods:   NewPeriods(request),
+		//Periods: LastThousandDays(request),
 	}
 }
 
@@ -100,13 +101,14 @@ func (s *Summarizer) Process(rec interface{}) {
 	switch v := rec.(type) {
 	case data.Upload:
 		if v.UserID != nil {
-			s.SummaryForUser(*v.UserID).Activity.Process(&v)
+			s.SummaryForUser(*v.UserID).Activity.ProcessUpload(&v)
 		} else {
 			log.Printf("upload missing userid : userid  %v uploadid %v", v.Base.UserID, *v.Base.UploadID)
 		}
 	case data.Blood:
 		if v.UserID != nil {
 			s.SummaryForUser(*v.UserID).Glucose.Process(&v)
+			s.SummaryForUser(*v.UserID).Activity.ProcessBG(&v)
 		} else {
 			log.Printf("blood missing userid : userid  %v uploadid %v", v.Base.UserID, *v.Base.UploadID)
 

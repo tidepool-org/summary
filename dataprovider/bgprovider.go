@@ -158,6 +158,7 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 		"type":    bson.M{"$in": []string{"cbg", "smbg"}}}
 
 	log.Printf("filter %v", filter)
+	log.Printf("projection %v", projection)
 
 	log.Printf("starting Find of BG")
 	cursor, err := deviceData.Find(ctx, filter, projection)
