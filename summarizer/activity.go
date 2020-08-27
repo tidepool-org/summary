@@ -27,6 +27,12 @@ func (a *ActivitySummarizer) Process(upload *data.Upload) {
 		DeviceSerialNumber:  upload.DeviceSerialNumber,
 	}
 
+	client := api.Client{
+		Name:     upload.Client.Name,
+		Platform: upload.Client.Platform,
+		Version:  upload.Client.Version,
+	}
+
 	var uploadTime time.Time
 	var err error
 	if upload.Time != nil {
@@ -40,7 +46,7 @@ func (a *ActivitySummarizer) Process(upload *data.Upload) {
 	found := false
 	for _, u := range a.Usage {
 		if reflect.DeepEqual(u.Device, &device) &&
-			reflect.DeepEqual(u.Client, upload.Client) &&
+			reflect.DeepEqual(u.Client, &client) &&
 			u.Event.Type == upload.Type {
 			if upload.Time != nil && u.Event.Time.Before(uploadTime) {
 				u.Event.Time = uploadTime
@@ -52,7 +58,7 @@ func (a *ActivitySummarizer) Process(upload *data.Upload) {
 	if !found {
 		a.Usage = append(a.Usage,
 			api.UploadActivity{
-				Client: upload.Client,
+				Client: &client,
 				Device: &device,
 				Event:  &api.UpdateEvent{Time: uploadTime, Type: upload.Type},
 			})

@@ -14,11 +14,13 @@ type GlucoseSummarizer struct {
 	Periods    []api.SummaryPeriod
 	Normalizer GlucoseNormalizer
 	Request    api.SummaryRequest
+	Start      time.Time
+	End        time.Time
 }
 
 // NewGlucoseSummarizer creates a Summarizer for the given request
-func NewGlucoseSummarizer(request api.SummaryRequest) *GlucoseSummarizer {
-	histograms := make([]*Histogramer, request.Period.NumPeriods)
+func NewGlucoseSummarizer(request api.SummaryRequest, periods []api.SummaryPeriod) *GlucoseSummarizer {
+	histograms := make([]*Histogramer, len(periods))
 	quantiles := make([]QuantileInfo, len(request.Quantiles))
 
 	for i := range quantiles {
@@ -26,25 +28,8 @@ func NewGlucoseSummarizer(request api.SummaryRequest) *GlucoseSummarizer {
 		quantiles[i].Threshold = float64(request.Quantiles[i].Threshold)
 	}
 
-	periods := make([]api.SummaryPeriod, request.Period.NumPeriods)
-
-	now := time.Now()
-	ending := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location()).Add(24 * time.Hour)
-	var nDays int
-	switch request.Period.Length {
-	case "day":
-		nDays = 1
-	case "week":
-		nDays = 7
-	}
-
-	for i := range histograms {
+	for i := range periods {
 		histograms[i] = NewHistogramer(quantiles)
-		periods[i].End = ending
-		ending = ending.AddDate(0, 0, -nDays)
-		periods[i].Start = ending
-		periods[i].Length = request.Period.Length
-		log.Printf("from %v to %v", periods[i].Start, periods[i].End)
 	}
 
 	return &GlucoseSummarizer{
@@ -57,7 +42,7 @@ func NewGlucoseSummarizer(request api.SummaryRequest) *GlucoseSummarizer {
 
 //Process a glucose sample
 func (s *GlucoseSummarizer) Process(v *data.Blood) {
-	now := time.Now()
+	log.Printf("processing %v", *v)
 	if v.Value == nil || v.Units == nil {
 		log.Printf("skipping entry with missing value or units %v\n", v)
 		return
@@ -71,12 +56,9 @@ func (s *GlucoseSummarizer) Process(v *data.Blood) {
 
 	standardized := s.Normalizer.ToStandard(float32(*v.Value), *v.Units)
 
-	if v.Active {
-		for i, p := range s.Periods {
-			if (!t.Before(p.Start)) && p.End.After(t) {
-				s.Histograms[i].Add(float64(standardized))
-				p.Updated = now
-			}
+	for i, p := range s.Periods {
+		if (!t.Before(p.Start)) && p.End.After(t) {
+			s.Histograms[i].Add(float64(standardized))
 		}
 	}
 }
