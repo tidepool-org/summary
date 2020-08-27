@@ -42,7 +42,6 @@ func NewGlucoseSummarizer(request api.SummaryRequest, periods []api.SummaryPerio
 
 //Process a glucose sample
 func (s *GlucoseSummarizer) Process(v *data.Blood) {
-	log.Printf("processing %v", *v)
 	if v.Value == nil || v.Units == nil {
 		log.Printf("skipping entry with missing value or units %v\n", v)
 		return

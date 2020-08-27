@@ -151,14 +151,15 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 	log.Printf("endTime %s", endTime)
 	log.Printf("Userids %v", userIds)
 
-	filter := []bson.M{
-		{"_userId": bson.M{"$in": userIds}},
-		{"time": bson.M{"$gte": startTime}},
-		{"time": bson.M{"$lt": endTime}},
-		{"type": bson.M{"$in": []string{"cbg", "smbg"}}}}
+	filter := bson.M{
+		"_userId": bson.M{"$in": userIds},
+		"time":    bson.M{"$gte": startTime, "$lt": endTime},
+		"type":    bson.M{"$in": []string{"cbg", "smbg"}}}
+
+	log.Printf("filter %v", filter)
 
 	log.Printf("starting Find of BG")
-	cursor, err := deviceData.Find(ctx, bson.M{"$and": filter}, projection)
+	cursor, err := deviceData.Find(ctx, filter, projection)
 	log.Printf("received cursor of BG")
 
 	if err != nil {
@@ -166,13 +167,13 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 	}
 
 	seen := make(map[string]bool)
+	count := 0
 	for cursor.Next(ctx) {
 		var bg data.Blood
 		if err := cursor.Decode(&bg); err != nil {
 			log.Printf("error decoding bg %v", err)
 			continue
 		}
-		log.Printf("found bg date %v", *bg.Base.Time)
 
 		if bg.UploadID != nil {
 			uploadID := *bg.UploadID
@@ -186,8 +187,11 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 				log.Printf("sending upload")
 				ch <- *upload
 			}
-			log.Printf("sending bg")
+			log.Printf("sending bg %v", count)
 			ch <- bg
+			log.Printf("sent bg %v", count)
+
+			count++
 		}
 	}
 }
