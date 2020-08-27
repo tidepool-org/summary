@@ -44,6 +44,16 @@ func NewServiceConfigFromEnv() *ServiceConfig {
 	return &config
 }
 
+// NewBGProvider providers a BGProvider
+func NewBGProvider(provider *dataprovider.MongoProvider) dataprovider.BGProvider {
+	return provider
+}
+
+// NewShareProvider providers a ShareProvider
+func NewShareProvider(provider *dataprovider.MongoShareProvider) dataprovider.ShareProvider {
+	return provider
+}
+
 //main is the main loop
 func main() {
 	fx.New(
@@ -52,9 +62,11 @@ func main() {
 		fx.Provide(store.NewMongoURIProviderFromEnv),
 		fx.Provide(ProvideMongoClient),
 		fx.Provide(dataprovider.NewMongoProvider),
+		fx.Provide(NewBGProvider),
+		fx.Provide(NewShareProvider),
 		fx.Provide(dataprovider.NewMongoShareProvider),
 		fx.Provide(server.NewSummaryServer),
-		fx.Invoke(ProvideEchoServer),
+		fx.Provide(ProvideEchoServer),
 		fx.Invoke(invokeHooks),
 	).Run()
 }
