@@ -28,29 +28,43 @@ func NewActivitySummarizer() *ActivitySummarizer {
 	}
 }
 
+//UploadIDToIndex translates an uploadid into an index into the Usage slice
+func (a *ActivitySummarizer) UploadIDToIndex(uploadID *string) int {
+	if uploadID == nil {
+		return a.Intern(nil, nil)
+	}
+	offset, ok := a.ActivityMap[*uploadID]
+	if !ok {
+		log.Printf("illegal offset for %v", *uploadID)
+		log.Printf("activity map %v", a.ActivityMap)
+		return 0
+	}
+	return offset
+}
+
 //ProcessBG updates the time
 func (a *ActivitySummarizer) ProcessBG(bg *data.Blood) {
-	if bg.UploadID != nil {
-		offset := a.ActivityMap[*bg.UploadID]
+	if bg.Time == nil {
+		log.Printf("no time provided %v", bg.ID)
+		return
+	}
 
-		var uploadTime time.Time
-		var err error
-		if bg.Time != nil {
-			uploadTime, err = time.Parse(Layout, *bg.Time)
-			if err != nil {
-				log.Printf("cannot parse time %v", bg.Time)
-				return
-			}
-		}
+	bgTime, err := time.Parse(Layout, *bg.Time)
+	if err != nil {
+		log.Printf("cannot parse time %v", bg.Time)
+		return
+	}
 
-		if bg.Time != nil && a.Usage[offset].Event.Time.Before(uploadTime) {
-			a.Usage[offset].Event.Time = uploadTime
-		}
+	offset := a.UploadIDToIndex(bg.UploadID)
+
+	if a.Usage[offset].Event.Time.Before(bgTime) {
+		a.Usage[offset].Event.Time = bgTime
+		a.Usage[offset].Event.Type = bg.Type
 	}
 }
 
-//ProcessUpload the device and client used in the upload
-func (a *ActivitySummarizer) ProcessUpload(upload *data.Upload) {
+//DeviceClientForUpload extracts a the device and client for an upload
+func (a *ActivitySummarizer) DeviceClientForUpload(upload *data.Upload) (*api.Device, *api.Client) {
 	device := api.Device{
 		DeviceManufacturers: upload.DeviceManufacturers,
 		DeviceModel:         upload.DeviceModel,
@@ -65,25 +79,30 @@ func (a *ActivitySummarizer) ProcessUpload(upload *data.Upload) {
 			Version:  upload.Client.Version,
 		}
 	}
+	return &device, &client
+}
 
-	found := false
-	for _, u := range a.Usage {
-		if reflect.DeepEqual(u.Device, &device) &&
-			reflect.DeepEqual(u.Client, &client) &&
-			u.Event.Type == upload.Type {
-			found = true
-			break
+//Intern adds a canonical entry to the device/client table and returns the index to the canonical entry
+func (a *ActivitySummarizer) Intern(device *api.Device, client *api.Client) int {
+	for i, u := range a.Usage {
+		if reflect.DeepEqual(u.Device, device) && reflect.DeepEqual(u.Client, client) {
+			return i
 		}
 	}
-	if !found {
-		if upload.ID != nil {
-			a.ActivityMap[*upload.ID] = len(a.Usage)
-		}
-		a.Usage = append(a.Usage,
-			api.UploadActivity{
-				Client: &client,
-				Device: &device,
-				Event:  &api.UpdateEvent{Type: upload.Type},
-			})
+	record := api.UploadActivity{
+		Client: client,
+		Device: device,
+		Event:  &api.UpdateEvent{},
+	}
+	a.Usage = append(a.Usage, record)
+	return len(a.Usage) - 1
+}
+
+//ProcessUpload intern device/client, add upload id to canonical entry to map
+func (a *ActivitySummarizer) ProcessUpload(upload *data.Upload) {
+	device, client := a.DeviceClientForUpload(upload)
+	offset := a.Intern(device, client)
+	if upload.Base.UploadID != nil {
+		a.ActivityMap[*upload.Base.UploadID] = offset
 	}
 }

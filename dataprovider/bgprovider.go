@@ -126,7 +126,6 @@ func (b *MongoProvider) GetUpload(ctx context.Context, deviceData *mongo.Collect
 	if err := singleResult.Decode(&val); err != nil {
 		return nil, err
 	}
-	log.Printf("returned uploadID %v at time %v", val.Base.UploadID, val.Base.Time)
 	return &val, nil
 }
 
