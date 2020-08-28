@@ -185,7 +185,6 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 					log.Printf("error decoding upload %v: %v", uploadID, err)
 					continue
 				}
-				log.Printf("sending upload")
 				ch <- *upload
 			}
 			ch <- bg
