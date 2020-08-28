@@ -101,18 +101,12 @@ func (s *Summarizer) Process(rec interface{}) {
 	switch v := rec.(type) {
 	case data.Upload:
 		if v.UserID != nil {
-			if v.Base.UploadID != nil {
-				log.Printf("processing upload %v", *v.Base.UploadID)
-			}
 			s.SummaryForUser(*v.UserID).Activity.ProcessUpload(&v)
 		} else {
 			log.Printf("upload missing userid : userid  %v uploadid %v", v.Base.UserID, *v.Base.UploadID)
 		}
 	case data.Blood:
 		if v.UserID != nil {
-			if v.Base.UploadID != nil {
-				log.Printf("processing blood %v", *v.Base.UploadID)
-			}
 			s.SummaryForUser(*v.UserID).Glucose.Process(&v)
 			s.SummaryForUser(*v.UserID).Activity.ProcessBG(&v)
 		} else {

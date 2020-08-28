@@ -188,10 +188,7 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 				log.Printf("sending upload")
 				ch <- *upload
 			}
-			log.Printf("sending bg %v", count)
 			ch <- bg
-			log.Printf("sent bg %v", count)
-
 			count++
 		}
 	}
