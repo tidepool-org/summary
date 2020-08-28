@@ -47,7 +47,6 @@ func (s *GlucoseSummarizer) Process(v *data.Blood) {
 		return
 	}
 	t, err := time.Parse(Layout, *v.Time)
-
 	if err != nil {
 		log.Printf("skipping entry with bad date %v\n", v)
 		return

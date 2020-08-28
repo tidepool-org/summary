@@ -1,6 +1,7 @@
 package summarizer
 
 import (
+	"fmt"
 	"log"
 	"reflect"
 	"time"
@@ -18,7 +19,6 @@ const (
 type ActivitySummarizer struct {
 	Usage         []api.UploadActivity
 	ActivityMap   map[string]int
-	Glucose       *GlucoseSummarizer
 	DeviceGlucose []*GlucoseSummarizer
 	Request       api.SummaryRequest
 	Periods       []api.SummaryPeriod
@@ -29,7 +29,6 @@ func NewActivitySummarizer(request api.SummaryRequest, periods []api.SummaryPeri
 	return &ActivitySummarizer{
 		Usage:         make([]api.UploadActivity, 0),
 		ActivityMap:   make(map[string]int),
-		Glucose:       NewGlucoseSummarizer(request, periods),
 		DeviceGlucose: make([]*GlucoseSummarizer, 0),
 		Request:       request,
 		Periods:       periods,
@@ -73,6 +72,8 @@ func (a *ActivitySummarizer) ProcessBG(bg *data.Blood) {
 	if offset >= len(a.DeviceGlucose) {
 		a.DeviceGlucose = append(a.DeviceGlucose, NewGlucoseSummarizer(a.Request, a.Periods))
 	}
+	fmt.Printf("%d,%0.05f,%v,%v\n", offset, *bg.Value, *bg.Base.Time, *bg.Base.UploadID)
+
 	a.DeviceGlucose[offset].Process(bg)
 }
 

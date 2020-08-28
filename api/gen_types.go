@@ -114,9 +114,6 @@ type SummaryResponse struct {
 	// A summary of which devices were used and when to upload diabetes data
 	Activity []UploadActivity `json:"activity"`
 
-	// Summary of recent glucose information.
-	Glucose []GlucoseSummary `json:"glucose"`
-
 	// String representation of a Tidepool User ID
 	Userid UserId `json:"userid"`
 }

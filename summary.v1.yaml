@@ -460,17 +460,10 @@ components:
           additionalItems: false
           items:
             $ref: '#/components/schemas/UploadActivity'
-        glucose:
-          type: array
-          title: Recent Statisical Summaries
-          description: Summary of recent glucose information.
-          items:
-            $ref: '#/components/schemas/GlucoseSummary'
         userid:
           $ref: '#/components/schemas/UserId'
       required:
         - activity
-        - glucose
         - userid
     UploadActivity:
       type: object
