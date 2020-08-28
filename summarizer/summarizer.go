@@ -58,7 +58,7 @@ func NewUserSummarizer(request api.SummaryRequest, periods []api.SummaryPeriod) 
 
 	return &UserSummarizer{
 		Glucose:  NewGlucoseSummarizer(request, periods),
-		Activity: NewActivitySummarizer(),
+		Activity: NewActivitySummarizer(request, periods),
 	}
 }
 
@@ -130,7 +130,7 @@ func (s *Summarizer) Summary() []*api.SummaryResponse {
 	for userid, summary := range s.Summaries {
 		summaries = append(summaries,
 			&api.SummaryResponse{
-				Activity: summary.Activity.Usage,
+				Activity: summary.Activity.Summary(),
 				Glucose:  summary.Glucose.Summary(),
 				Userid:   api.UserId(userid),
 			},

@@ -16,15 +16,23 @@ const (
 
 //ActivitySummarizer accumulates data on which devices and clients reported activity
 type ActivitySummarizer struct {
-	Usage       []api.UploadActivity
-	ActivityMap map[string]int
+	Usage         []api.UploadActivity
+	ActivityMap   map[string]int
+	Glucose       *GlucoseSummarizer
+	DeviceGlucose []*GlucoseSummarizer
+	Request       api.SummaryRequest
+	Periods       []api.SummaryPeriod
 }
 
 //NewActivitySummarizer  constructor for ActivitySummarizer
-func NewActivitySummarizer() *ActivitySummarizer {
+func NewActivitySummarizer(request api.SummaryRequest, periods []api.SummaryPeriod) *ActivitySummarizer {
 	return &ActivitySummarizer{
-		Usage:       make([]api.UploadActivity, 0),
-		ActivityMap: make(map[string]int),
+		Usage:         make([]api.UploadActivity, 0),
+		ActivityMap:   make(map[string]int),
+		Glucose:       NewGlucoseSummarizer(request, periods),
+		DeviceGlucose: make([]*GlucoseSummarizer, 0),
+		Request:       request,
+		Periods:       periods,
 	}
 }
 
@@ -61,6 +69,11 @@ func (a *ActivitySummarizer) ProcessBG(bg *data.Blood) {
 		a.Usage[offset].Event.Time = bgTime
 		a.Usage[offset].Event.Type = bg.Type
 	}
+
+	if offset >= len(a.DeviceGlucose) {
+		a.DeviceGlucose = append(a.DeviceGlucose, NewGlucoseSummarizer(a.Request, a.Periods))
+	}
+	a.DeviceGlucose[offset].Process(bg)
 }
 
 //DeviceClientForUpload extracts a the device and client for an upload
@@ -105,4 +118,12 @@ func (a *ActivitySummarizer) ProcessUpload(upload *data.Upload) {
 	if upload.Base.UploadID != nil {
 		a.ActivityMap[*upload.Base.UploadID] = offset
 	}
+}
+
+//Summary returns an activity summary
+func (a *ActivitySummarizer) Summary() []api.UploadActivity {
+	for i := range a.DeviceGlucose {
+		a.Usage[i].Glucose = a.DeviceGlucose[i].Summary()
+	}
+	return a.Usage
 }

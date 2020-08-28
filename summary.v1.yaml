@@ -189,7 +189,7 @@ components:
           maximum: 1000
         percentage:
           type: number
-          description: The percentage of samples below the threshold value.
+          description: 'The percentage of samples below the threshold value. Values are in the range [0.0,100.0].'
           format: float
           minimum: 0
           maximum: 100
@@ -477,13 +477,6 @@ components:
       title: Recent Upload Activity
       description: A report on when a diabetes device was most recently used
       additionalProperties: false
-      properties:
-        client:
-          $ref: '#/components/schemas/Client'
-        device:
-          $ref: '#/components/schemas/Device'
-        event:
-          $ref: '#/components/schemas/UpdateEvent'
       x-examples:
         example-1:
           client:
@@ -497,6 +490,20 @@ components:
           event:
             time: '2020-08-18T08:29:02Z'
             type: upload
+      properties:
+        client:
+          $ref: '#/components/schemas/Client'
+        device:
+          $ref: '#/components/schemas/Device'
+        event:
+          $ref: '#/components/schemas/UpdateEvent'
+        glucose:
+          type: array
+          description: Glucose summary for each device over each period
+          items:
+            $ref: '#/components/schemas/GlucoseSummary'
+      required:
+        - glucose
     Client:
       type: object
       title: Diabetes client software package

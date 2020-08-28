@@ -68,7 +68,7 @@ type Quantile struct {
 	// The name of the quantile.
 	Name string `json:"name"`
 
-	// The percentage of samples below the threshold value.
+	// The percentage of samples below the threshold value. Values are in the range [0.0,100.0].
 	Percentage float32 `json:"percentage"`
 
 	// The threshold of the quantile.
@@ -167,6 +167,9 @@ type UploadActivity struct {
 
 	// The time that that the device was last used to provide diabetes data
 	Event *UpdateEvent `json:"event,omitempty"`
+
+	// Glucose summary for each device over each period
+	Glucose []GlucoseSummary `json:"glucose"`
 }
 
 // UserId defines model for UserId.
