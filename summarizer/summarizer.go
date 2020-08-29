@@ -1,6 +1,7 @@
 package summarizer
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -94,23 +95,23 @@ func (s *Summarizer) SummarizerForUser(userid string) *UserSummarizer {
 }
 
 //Process an event
-func (s *Summarizer) Process(rec interface{}) {
+func (s *Summarizer) Process(rec interface{}) error {
 	switch v := rec.(type) {
 	case data.Upload:
 		if v.UserID != nil {
 			s.SummarizerForUser(*v.UserID).Activity.ProcessUpload(&v)
+			return nil
 		} else {
-			log.Printf("upload missing userid : userid  %v uploadid %v", v.Base.UserID, *v.Base.UploadID)
+			return fmt.Errorf("upload missing userid : userid  %v uploadid %v", v.Base.UserID, *v.Base.UploadID)
 		}
 	case data.Blood:
 		if v.UserID != nil {
-			s.SummarizerForUser(*v.UserID).Activity.ProcessBG(&v)
+			return s.SummarizerForUser(*v.UserID).Activity.ProcessBG(&v)
 		} else {
-			log.Printf("blood missing userid : userid  %v uploadid %v", v.Base.UserID, *v.Base.UploadID)
-
+			return fmt.Errorf("blood missing userid : userid  %v uploadid %v", v.Base.UserID, *v.Base.UploadID)
 		}
 	default:
-		log.Printf("unexpected data type returned %v", v)
+		return fmt.Errorf("unexpected data type returned %v", v)
 	}
 }
 

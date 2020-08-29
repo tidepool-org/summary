@@ -30,7 +30,7 @@ var _ api.ServerInterface = &SummaryServer{} // confirms that interface is imple
 func (c *SummaryServer) PostV1UsersUseridSummaries(ctx echo.Context, userID string) error {
 	userids, err := c.ShareProvider.SharerIdsForUser(ctx.Request().Context(), userID)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, nil)
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 	return c.ProcessRequest(ctx, userids)
 }
@@ -40,7 +40,7 @@ func (c *SummaryServer) PostV1UsersUseridSummaries(ctx echo.Context, userID stri
 func (c *SummaryServer) PostV1ClinicsCliniidSummary(ctx echo.Context, clinicID string) error {
 	userids, err := c.ShareProvider.SharerIdsForClinic(ctx.Request().Context(), clinicID)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, nil)
+		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 	return c.ProcessRequest(ctx, userids)
 }
@@ -67,13 +67,16 @@ func (c *SummaryServer) ProcessRequest(ctx echo.Context, userids []string) error
 	for {
 		select {
 		case <-ctx.Request().Context().Done():
-			return ctx.JSON(http.StatusRequestTimeout, nil)
+			return echo.NewHTTPError(http.StatusRequestTimeout)
 		case bg, ok := <-ch:
 			if !ok {
 				summary := summarizer.Summary()
 				return ctx.JSON(http.StatusOK, &summary)
 			}
-			summarizer.Process(bg)
+			err := summarizer.Process(bg)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusBadRequest, "corrupted data", err)
+			}
 		}
 	}
 }

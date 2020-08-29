@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"time"
 
 	"github.com/tidepool-org/summary/api"
 	"github.com/tidepool-org/summary/data"
@@ -50,31 +49,18 @@ func (a *ActivitySummarizer) UploadIDToIndex(uploadID *string) int {
 }
 
 //ProcessBG updates the time
-func (a *ActivitySummarizer) ProcessBG(bg *data.Blood) {
+func (a *ActivitySummarizer) ProcessBG(bg *data.Blood) error {
 	if bg.Time == nil {
-		log.Printf("no time provided %v", bg.ID)
-		return
-	}
-
-	bgTime, err := time.Parse(Layout, *bg.Time)
-	if err != nil {
-		log.Printf("cannot parse time %v", bg.Time)
-		return
+		return fmt.Errorf("no time provided %v", bg.ID)
 	}
 
 	offset := a.UploadIDToIndex(bg.UploadID)
-
-	if a.Usage[offset].Event.Time.Before(bgTime) {
-		a.Usage[offset].Event.Time = bgTime
-		a.Usage[offset].Event.Type = bg.Type
-	}
-
 	if offset >= len(a.DeviceGlucose) {
 		a.DeviceGlucose = append(a.DeviceGlucose, NewGlucoseSummarizer(a.Request, a.Periods))
 	}
 	fmt.Printf("%d,%0.05f,%v,%v\n", offset, *bg.Value, *bg.Base.Time, *bg.Base.UploadID)
 
-	a.DeviceGlucose[offset].Process(bg)
+	return a.DeviceGlucose[offset].Process(bg)
 }
 
 //DeviceClientForUpload extracts a the device and client for an upload
@@ -125,6 +111,8 @@ func (a *ActivitySummarizer) ProcessUpload(upload *data.Upload) {
 func (a *ActivitySummarizer) Summary() []api.UploadActivity {
 	for i := range a.DeviceGlucose {
 		a.Usage[i].Glucose = a.DeviceGlucose[i].Summary()
+		a.Usage[i].Event.Time = a.DeviceGlucose[i].BGEnd
+		a.Usage[i].Event.Type = *a.DeviceGlucose[i].Type
 	}
 	return a.Usage
 }

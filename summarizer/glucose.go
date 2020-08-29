@@ -1,7 +1,7 @@
 package summarizer
 
 import (
-	"log"
+	"fmt"
 	"math"
 	"time"
 
@@ -17,6 +17,9 @@ type GlucoseSummarizer struct {
 	Request    api.SummaryRequest
 	Start      time.Time
 	End        time.Time
+	BGStart    time.Time
+	BGEnd      time.Time
+	Type       *string
 }
 
 // NewGlucoseSummarizer creates a Summarizer for the given request
@@ -36,15 +39,21 @@ func NewGlucoseSummarizer(request api.SummaryRequest, periods []api.SummaryPerio
 }
 
 //Process a glucose sample
-func (s *GlucoseSummarizer) Process(v *data.Blood) {
+func (s *GlucoseSummarizer) Process(v *data.Blood) error {
 	if v.Value == nil || v.Units == nil {
-		log.Printf("skipping entry with missing value or units %v\n", v)
-		return
+		return fmt.Errorf("missing value or units from egv value: %v", v)
 	}
+
 	t, err := time.Parse(Layout, *v.Time)
 	if err != nil {
-		log.Printf("skipping entry with bad date %v\n", v)
-		return
+		return fmt.Errorf("skipping entry with bad date %v", v)
+	}
+
+	if s.BGStart.IsZero() || t.Before(s.BGStart) {
+		s.BGStart = t
+	}
+	if s.BGEnd.IsZero() || t.After(s.BGEnd) {
+		s.BGEnd = t
 	}
 
 	standardized := s.Normalizer.ToStandard(float32(*v.Value), *v.Units)
@@ -54,6 +63,7 @@ func (s *GlucoseSummarizer) Process(v *data.Blood) {
 			s.Histograms[i].Add(float64(standardized))
 		}
 	}
+	return nil
 }
 
 //Summary return summary report
