@@ -102,34 +102,44 @@ func ProvideEchoServer(config *ServiceConfig, swagger *openapi3.Swagger) *echo.E
 	return e
 }
 
-func invokeHooks(lifecycle fx.Lifecycle, e *echo.Echo, config *ServiceConfig, summaryServer *server.SummaryServer, client *mongo.Client) {
-	lifecycle.Append(
+// InvocationParams parameters to the invokeHooks command
+type InvocationParams struct {
+	fx.In
+	Lifecycle     fx.Lifecycle
+	Echo          *echo.Echo
+	Config        *ServiceConfig
+	SummaryServer *server.SummaryServer
+	Client        *mongo.Client
+}
+
+func invokeHooks(p InvocationParams) {
+	p.Lifecycle.Append(
 		fx.Hook{
-			OnStart: func(context.Context) error {
+			OnStart: func(ctx context.Context) error {
 				// Register Handler
-				if err := client.Connect(context.Background()); err != nil {
+				if err := p.Client.Connect(ctx); err != nil {
 					return err
 				}
 
 				time.Sleep(1 * time.Second)
-				if err := client.Ping(context.Background(), nil); err != nil {
+				if err := p.Client.Ping(ctx, nil); err != nil {
 					return err
 				}
 
-				api.RegisterHandlers(e, summaryServer)
+				api.RegisterHandlers(p.Echo, p.SummaryServer)
 
 				go func() {
 					// Start server
-					e.Logger.Printf("Starting Server at: %s\n", config.Address)
-					if err := e.Start(config.Address); err != nil {
-						e.Logger.Info("shutting down the server")
+					p.Echo.Logger.Printf("Starting Server at: %s\n", p.Config.Address)
+					if err := p.Echo.Start(p.Config.Address); err != nil {
+						p.Echo.Logger.Info("shutting down the server")
 					}
 				}()
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				if err := e.Shutdown(ctx); err != nil {
-					e.Logger.Fatal(err)
+				if err := p.Echo.Shutdown(ctx); err != nil {
+					p.Echo.Logger.Fatal(err)
 					return err
 				}
 				return nil
