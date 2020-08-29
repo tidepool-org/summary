@@ -111,7 +111,7 @@ func (s *Summarizer) Process(rec interface{}) {
 
 		}
 	default:
-		log.Printf("skipping  %v \n", v)
+		log.Printf("unexpected data type returned %v", v)
 	}
 }
 
