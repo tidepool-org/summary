@@ -85,20 +85,13 @@ func ProvideEchoServer(config *ServiceConfig, swagger *openapi3.Swagger) *echo.E
 
 	e.GET("/status", hello)
 
-	loggerConfig := middleware.LoggerConfig{
-		Skipper: func(c echo.Context) bool {
-			return strings.HasPrefix(c.Path(), "/status")
-		},
+	skipper := func(c echo.Context) bool {
+		return strings.HasPrefix(c.Path(), "/status")
 	}
-	e.Use(middleware.LoggerWithConfig(loggerConfig))
-	e.Use(middleware.Recover())
 
-	options := api.Options{
-		Skipper: func(c echo.Context) bool {
-			return strings.HasPrefix(c.Path(), "/status")
-		},
-	}
-	e.Use(api.OapiRequestValidatorWithOptions(swagger, &options))
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{Skipper: skipper}))
+	e.Use(middleware.Recover())
+	e.Use(api.OapiRequestValidatorWithOptions(swagger, &api.Options{Skipper: skipper}))
 	return e
 }
 

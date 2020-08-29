@@ -33,9 +33,9 @@ func (b *MongoShareProvider) SharerIdsForUser(ctx context.Context, userID string
 	perms := b.Client.Database("gatekeeper").Collection("perms")
 	sharerIds, err := perms.Distinct(ctx, "sharerId", bson.M{"userId": userID})
 	if err != nil {
-		log.Fatalf("error getting distinct %v", err)
+		log.Printf("error getting distinct %v", err)
+		return nil, err
 	}
-	log.Printf("received %v shares", len(sharerIds))
 	ids := make([]string, len(sharerIds))
 	for i, id := range sharerIds {
 		ids[i] = id.(string)
@@ -48,9 +48,9 @@ func (b *MongoShareProvider) SharerIdsForClinic(ctx context.Context, clinicID st
 	perms := b.Client.Database("clinic").Collection("clinicPatients")
 	sharerIds, err := perms.Distinct(ctx, "patientId", bson.M{"clinicId": clinicID})
 	if err != nil {
-		log.Fatalf("error getting distinct %v", err)
+		log.Printf("error getting distinct %v", err)
+		return nil, err
 	}
-	log.Printf("received %v shares", len(sharerIds))
 	ids := make([]string, len(sharerIds))
 	for i, id := range sharerIds {
 		ids[i] = id.(string)
