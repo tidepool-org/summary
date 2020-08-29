@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
@@ -73,14 +74,7 @@ func ProvideMongoClient(uriProvider store.MongoURIProvider) (client *mongo.Clien
 	if err != nil {
 		return
 	}
-	err = client.Connect(context.Background())
-	/*
-		time.Sleep(1 * time.Second)
-		err = client.Ping(context.Background(), nil)
-		if err != nil {
-			log.Fatalf("ProvideMongoClient: could not ping mongo client: %v", err)
-		}
-	*/
+
 	return
 }
 
@@ -112,11 +106,20 @@ func ProvideEchoServer(config *ServiceConfig, swagger *openapi3.Swagger) *echo.E
 	return e
 }
 
-func invokeHooks(lifecycle fx.Lifecycle, e *echo.Echo, config *ServiceConfig, summaryServer *server.SummaryServer) {
+func invokeHooks(lifecycle fx.Lifecycle, e *echo.Echo, config *ServiceConfig, summaryServer *server.SummaryServer, client *mongo.Client) {
 	lifecycle.Append(
 		fx.Hook{
 			OnStart: func(context.Context) error {
 				// Register Handler
+				if err := client.Connect(context.Background()); err != nil {
+					return err
+				}
+
+				time.Sleep(1 * time.Second)
+				if err := client.Ping(context.Background(), nil); err != nil {
+					return err
+				}
+
 				api.RegisterHandlers(e, summaryServer)
 
 				go func() {
