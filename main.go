@@ -105,11 +105,11 @@ func ProvideEchoServer(config *ServiceConfig, swagger *openapi3.Swagger) *echo.E
 // InvocationParams parameters to the invokeHooks command
 type InvocationParams struct {
 	fx.In
-	Lifecycle     fx.Lifecycle
-	Echo          *echo.Echo
-	Config        *ServiceConfig
-	SummaryServer *server.SummaryServer
-	Client        *mongo.Client
+	Lifecycle fx.Lifecycle
+	Echo      *echo.Echo
+	Config    *ServiceConfig
+	Server    *server.SummaryServer
+	Client    *mongo.Client
 }
 
 func invokeHooks(p InvocationParams) {
@@ -126,7 +126,7 @@ func invokeHooks(p InvocationParams) {
 					return err
 				}
 
-				api.RegisterHandlers(p.Echo, p.SummaryServer)
+				api.RegisterHandlers(p.Echo, p.Server)
 
 				go func() {
 					// Start server
