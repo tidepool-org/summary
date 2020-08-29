@@ -112,7 +112,12 @@ func (a *ActivitySummarizer) Summary() []api.UploadActivity {
 	for i := range a.DeviceGlucose {
 		a.Usage[i].Glucose = a.DeviceGlucose[i].Summary()
 		a.Usage[i].Event.Time = a.DeviceGlucose[i].BGEnd
-		a.Usage[i].Event.Type = *a.DeviceGlucose[i].Type
+		if a.DeviceGlucose[i].Type == nil {
+			t := "none"
+			a.DeviceGlucose[i].Type = &t
+		} else {
+			a.Usage[i].Event.Type = *a.DeviceGlucose[i].Type
+		}
 	}
 	return a.Usage
 }

@@ -98,7 +98,7 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 	cursor, err := deviceData.Find(ctx, filter, projection)
 
 	if err != nil {
-		log.Printf("count not find device data: %v", err)
+		log.Printf("could not find device data: %v", err)
 		return
 	}
 

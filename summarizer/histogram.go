@@ -20,7 +20,7 @@ func NewHistogramer(src []QuantileInfo) *Histogramer {
 	return &Histogramer{Info: dst}
 }
 
-// Add adds a blood sample to the summary
+// Add adds an EGV to the summary
 func (s *Histogramer) Add(value float64) {
 	for i, quantile := range s.Info {
 		if value < quantile.Threshold {
@@ -30,7 +30,7 @@ func (s *Histogramer) Add(value float64) {
 	}
 }
 
-// Remove adds a blood sample to the summary
+// Remove adds an EGV to the summary
 func (s *Histogramer) Remove(value float64) {
 	for i, quantile := range s.Info {
 		if value < quantile.Threshold {
