@@ -129,6 +129,30 @@ func (b *MongoProvider) GetUpload(ctx context.Context, deviceData *mongo.Collect
 	return &val, nil
 }
 
+// GetCGMSettings returns array of CGM settings for all users
+func (b *MongoProvider) GetCGMSettings(ctx context.Context, start, end time.Time, userIds []string) error {
+	deviceData := b.Client.Database("data").Collection("deviceData")
+	endTime := end.Format(time.RFC3339)
+
+	cgmFilter := bson.M{
+		"_active": true,
+		"_userId": bson.M{"$in": userIds},
+		"time":    bson.M{"$lt": endTime},
+		"type":    "cgmSettings",
+	}
+
+	cgmProjection := new(options.FindOptions).SetProjection(bson.M{
+		"_userId":         1,
+		"time":            1,
+		"uploadId":        1,
+		"manufacturerers": 1,
+		"serialNumber":    1,
+	})
+
+	_, err := deviceData.Find(ctx, cgmFilter, cgmProjection)
+	return err
+}
+
 //GetDeviceData sends device data for given userIds over given time period to given channel
 func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time, ch chan<- BG, userIds []string) {
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
@@ -87,9 +88,10 @@ func ProvideMongoClient(uriProvider store.MongoURIProvider) (*mongo.Client, erro
 		log.Fatalln("ProvideMongoClient: cannot create client:", err)
 	}
 	client.Connect(context.Background())
+	time.Sleep(1 * time.Second)
 	err = client.Ping(context.Background(), nil)
 	if err != nil {
-		log.Fatalf("ProvideMongoClient: could not ping mongo client %v", err)
+		log.Fatalf("ProvideMongoClient: could not ping mongo client: %v", err)
 	}
 	return client, err
 }
