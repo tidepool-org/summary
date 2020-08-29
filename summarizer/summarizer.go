@@ -54,7 +54,6 @@ func LastThousandDays(request api.SummaryRequest) []api.SummaryPeriod {
 
 //NewUserSummarizer create a new User Summarizer
 func NewUserSummarizer(request api.SummaryRequest, periods []api.SummaryPeriod) *UserSummarizer {
-
 	return &UserSummarizer{
 		Activity: NewActivitySummarizer(request, periods),
 	}
@@ -85,8 +84,8 @@ func (s *Summarizer) DateRange() (from, to time.Time) {
 	return
 }
 
-//SummaryForUser return summary for given user
-func (s *Summarizer) SummaryForUser(userid string) *UserSummarizer {
+//SummarizerForUser return summary for given user
+func (s *Summarizer) SummarizerForUser(userid string) *UserSummarizer {
 	if summary, ok := s.Summaries[userid]; ok {
 		return summary
 	}
@@ -99,13 +98,13 @@ func (s *Summarizer) Process(rec interface{}) {
 	switch v := rec.(type) {
 	case data.Upload:
 		if v.UserID != nil {
-			s.SummaryForUser(*v.UserID).Activity.ProcessUpload(&v)
+			s.SummarizerForUser(*v.UserID).Activity.ProcessUpload(&v)
 		} else {
 			log.Printf("upload missing userid : userid  %v uploadid %v", v.Base.UserID, *v.Base.UploadID)
 		}
 	case data.Blood:
 		if v.UserID != nil {
-			s.SummaryForUser(*v.UserID).Activity.ProcessBG(&v)
+			s.SummarizerForUser(*v.UserID).Activity.ProcessBG(&v)
 		} else {
 			log.Printf("blood missing userid : userid  %v uploadid %v", v.Base.UserID, *v.Base.UploadID)
 
