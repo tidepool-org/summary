@@ -1,5 +1,7 @@
 package summarizer
 
+import "log"
+
 // QuantileInfo aggregates partial info leading to a quantile summary
 type QuantileInfo struct {
 	Count     float64
@@ -27,11 +29,12 @@ func (s *Histogramer) Add(value float64) {
 	for i, quantile := range s.Info {
 		if value < quantile.Threshold {
 			s.Info[i].Count++
-			s.Info[i].Mean += (s.Info[i].Mean)*((s.Info[i].Count-1.0)/s.Info[i].Count) + (value / s.Info[i].Count)
+			s.Info[i].Mean = (s.Info[i].Mean)*((s.Info[i].Count-1.0)/s.Info[i].Count) + (value / s.Info[i].Count)
+			log.Printf("mean %v", s.Info[i].Mean)
 		}
 	}
 	s.Count++
-	s.Mean += (s.Mean)*((s.Count-1.0)/s.Count) + (value / s.Count)
+	s.Mean = (s.Mean)*((s.Count-1.0)/s.Count) + (value / s.Count)
 }
 
 // Remove adds a blood sample to the summary
@@ -39,9 +42,9 @@ func (s *Histogramer) Remove(value float64) {
 	for i, quantile := range s.Info {
 		if value < quantile.Threshold {
 			s.Info[i].Count--
-			s.Info[i].Mean += (s.Info[i].Mean)*((s.Info[i].Count)/s.Info[i].Count+1) - (value / (s.Info[i].Count + 1))
+			s.Info[i].Mean = (s.Info[i].Mean)*((s.Info[i].Count)/s.Info[i].Count+1) - (value / (s.Info[i].Count + 1))
 		}
 	}
 	s.Count--
-	s.Mean += (s.Mean)*((s.Count)/(s.Count+1)) - (value / (s.Count + 1))
+	s.Mean = (s.Mean)*((s.Count)/(s.Count+1)) - (value / (s.Count + 1))
 }

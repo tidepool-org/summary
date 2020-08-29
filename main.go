@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"strings"
-	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
@@ -114,10 +113,12 @@ func invokeHooks(p InvocationParams) {
 					return err
 				}
 
-				time.Sleep(1 * time.Second)
-				if err := p.Client.Ping(ctx, nil); err != nil {
-					return err
-				}
+				/*
+					time.Sleep(1 * time.Second)
+					if err := p.Client.Ping(ctx, nil); err != nil {
+						return err
+					}
+				*/
 
 				api.RegisterHandlers(p.Echo, p.Server)
 
