@@ -189,4 +189,3 @@ type PostV1UsersUseridSummariesJSONRequestBody PostV1UsersUseridSummariesJSONBod
 
 // PostV1UsersUseridSummaryRequestBody defines body for PostV1UsersUseridSummary for application/json ContentType.
 type PostV1UsersUseridSummaryJSONRequestBody PostV1UsersUseridSummaryJSONBody
-

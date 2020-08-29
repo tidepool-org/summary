@@ -78,8 +78,8 @@ func NewSummarizer(request api.SummaryRequest) *Summarizer {
 
 //DateRange provide the times needed to produce the reports
 func (s *Summarizer) DateRange() (from, to time.Time) {
-	from = s.Periods[0].Start
-	to = s.Periods[len(s.Periods)-1].End
+	to = s.Periods[0].End
+	from = s.Periods[len(s.Periods)-1].Start
 	log.Printf("from %v, to %v", from, to)
 	return
 }

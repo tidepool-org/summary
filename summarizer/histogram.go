@@ -10,16 +10,14 @@ type QuantileInfo struct {
 
 // Histogramer create a summary of blood glucose data
 type Histogramer struct {
-	Info  []QuantileInfo
-	Count float64
-	Mean  float64
+	Info []QuantileInfo
 }
 
 // NewHistogramer create a Histogramer
-func NewHistogramer(quantiles []QuantileInfo) *Histogramer {
-	return &Histogramer{
-		Info: quantiles,
-	}
+func NewHistogramer(src []QuantileInfo) *Histogramer {
+	dst := make([]QuantileInfo, len(src))
+	copy(dst, src)
+	return &Histogramer{Info: dst}
 }
 
 // Add adds a blood sample to the summary
@@ -30,8 +28,6 @@ func (s *Histogramer) Add(value float64) {
 			s.Info[i].Mean = (s.Info[i].Mean)*((s.Info[i].Count-1.0)/s.Info[i].Count) + (value / s.Info[i].Count)
 		}
 	}
-	s.Count++
-	s.Mean = (s.Mean)*((s.Count-1.0)/s.Count) + (value / s.Count)
 }
 
 // Remove adds a blood sample to the summary
@@ -42,6 +38,4 @@ func (s *Histogramer) Remove(value float64) {
 			s.Info[i].Mean = (s.Info[i].Mean)*((s.Info[i].Count)/s.Info[i].Count+1) - (value / (s.Info[i].Count + 1))
 		}
 	}
-	s.Count--
-	s.Mean = (s.Mean)*((s.Count)/(s.Count+1)) - (value / (s.Count + 1))
 }

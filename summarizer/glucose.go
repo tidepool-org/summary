@@ -2,6 +2,7 @@ package summarizer
 
 import (
 	"log"
+	"math"
 	"time"
 
 	"github.com/tidepool-org/summary/api"
@@ -21,13 +22,7 @@ type GlucoseSummarizer struct {
 // NewGlucoseSummarizer creates a Summarizer for the given request
 func NewGlucoseSummarizer(request api.SummaryRequest, periods []api.SummaryPeriod) *GlucoseSummarizer {
 	histograms := make([]*Histogramer, len(periods))
-	quantiles := make([]QuantileInfo, len(request.Quantiles))
-
-	for i := range quantiles {
-		quantiles[i].Name = request.Quantiles[i].Name
-		quantiles[i].Threshold = float64(request.Quantiles[i].Threshold)
-	}
-
+	quantiles := quantilesFromRequest(request)
 	for i := range periods {
 		histograms[i] = NewHistogramer(quantiles)
 	}
@@ -68,29 +63,46 @@ func (s *GlucoseSummarizer) Summary() []api.GlucoseSummary {
 	for i, period := range s.Periods {
 		histogram := s.Histograms[i]
 		period.Updated = now
-		quantiles := make([]api.Quantile, len(histogram.Info))
-		for j, info := range histogram.Info {
-			quantiles[j].Count = new(int)
-			*quantiles[j].Count = int(info.Count)
-			if histogram.Count > 0 {
-				quantiles[j].Percentage = float32((100.0 * info.Count) / histogram.Count)
-			} else {
-				quantiles[j].Percentage = 0.0
-			}
-			quantiles[j].Threshold = s.Request.Quantiles[j].Threshold
-			quantiles[j].Name = s.Request.Quantiles[j].Name
-		}
+		all := histogram.Info[len(histogram.Info)-1]
+
 		reports[i] = api.GlucoseSummary{
 			Period: period,
 			Stats: api.SummaryStatistics{
-				Count:     int(histogram.Count),
-				Mean:      float32(histogram.Mean),
+				Count:     int(all.Count),
+				Mean:      float32(all.Mean),
 				Units:     s.Request.Units,
-				Quantiles: quantiles,
+				Quantiles: quantilesFromHistogram(histogram),
 			},
 		}
-
 	}
-	log.Printf("reports %v", reports)
 	return reports
+}
+
+//quantilesFromRequest makes the quantiles for a histogrammer, including a quantile to capture all the data
+func quantilesFromRequest(request api.SummaryRequest) []QuantileInfo {
+	n := len(request.Quantiles)
+	quantiles := make([]QuantileInfo, n+1)
+	for i, requested := range request.Quantiles {
+		quantiles[i] = QuantileInfo{Name: requested.Name, Threshold: float64(requested.Threshold)}
+	}
+	quantiles[n] = QuantileInfo{Name: "**max**", Threshold: math.MaxFloat64}
+	return quantiles
+}
+
+func quantilesFromHistogram(histogram *Histogramer) []api.Quantile {
+	quantiles := make([]api.Quantile, len(histogram.Info))
+	last := len(histogram.Info) - 1
+	all := histogram.Info[last]
+	for j, info := range histogram.Info[0:last] {
+		quantiles[j].Count = new(int)
+		*quantiles[j].Count = int(info.Count)
+		if all.Count > 0 {
+			quantiles[j].Percentage = float32((100.0 * info.Count) / all.Count)
+		} else {
+			quantiles[j].Percentage = 0.0
+		}
+		quantiles[j].Threshold = float32(info.Threshold)
+		quantiles[j].Name = info.Name
+	}
+	return quantiles
 }
