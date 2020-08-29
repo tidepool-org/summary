@@ -89,25 +89,17 @@ func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time,
 	startTime := start.Format(time.RFC3339)
 	endTime := end.Format(time.RFC3339)
 
-	log.Printf("startTime %s", startTime)
-	log.Printf("endTime %s", endTime)
-	log.Printf("Userids %v", userIds)
-
 	filter := bson.M{
 		"_active": true,
 		"_userId": bson.M{"$in": userIds},
 		"time":    bson.M{"$gte": startTime, "$lt": endTime},
 		"type":    bson.M{"$in": []string{"cbg", "smbg"}}}
 
-	log.Printf("filter %v", filter)
-	log.Printf("projection %v", projection)
-
-	log.Printf("starting Find of BG")
 	cursor, err := deviceData.Find(ctx, filter, projection)
-	log.Printf("received cursor of BG")
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("count not find device data: %v", err)
+		return
 	}
 
 	seen := make(map[string]bool)
