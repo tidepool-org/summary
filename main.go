@@ -89,10 +89,12 @@ func ProvideMongoClient(uriProvider store.MongoURIProvider) (*mongo.Client, erro
 	}
 	client.Connect(context.Background())
 	time.Sleep(1 * time.Second)
-	err = client.Ping(context.Background(), nil)
-	if err != nil {
-		log.Fatalf("ProvideMongoClient: could not ping mongo client: %v", err)
-	}
+	/*
+		err = client.Ping(context.Background(), nil)
+		if err != nil {
+			log.Fatalf("ProvideMongoClient: could not ping mongo client: %v", err)
+		}
+	*/
 	return client, err
 }
 
