@@ -68,13 +68,9 @@ func main() {
 	).Run()
 }
 
-// ProvideMongoClient provides a mongo client that is reachable
+// ProvideMongoClient provides a mongo client
 func ProvideMongoClient(uriProvider store.MongoURIProvider) (client *mongo.Client, err error) {
 	client, err = mongo.NewClient(mongoOptions.Client().ApplyURI(uriProvider.URI()))
-	if err != nil {
-		return
-	}
-
 	return
 }
 
