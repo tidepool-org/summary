@@ -56,6 +56,8 @@ func (s *GlucoseSummarizer) Process(v *data.Blood) error {
 		s.BGEnd = t
 	}
 
+	s.Type = &v.Base.Type
+
 	standardized := s.Normalizer.ToStandard(float32(*v.Value), *v.Units)
 
 	for i, p := range s.Periods {
