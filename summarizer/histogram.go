@@ -2,8 +2,8 @@ package summarizer
 
 // QuantileInfo aggregates partial info leading to a quantile summary
 type QuantileInfo struct {
-	Count     int
-	Sum       float64
+	Count     float64
+	Mean      float64
 	Threshold float64
 	Name      string
 }
@@ -11,8 +11,8 @@ type QuantileInfo struct {
 // Histogramer create a summary of blood glucose data
 type Histogramer struct {
 	Info  []QuantileInfo
-	Count int
-	Sum   float64
+	Count float64
+	Mean  float64
 }
 
 // NewHistogramer create a Histogramer
@@ -27,11 +27,11 @@ func (s *Histogramer) Add(value float64) {
 	for i, quantile := range s.Info {
 		if value < quantile.Threshold {
 			s.Info[i].Count++
-			s.Info[i].Sum += float64(value)
+			s.Info[i].Mean += (s.Info[i].Mean)*((s.Info[i].Count-1.0)/s.Info[i].Count) + (value / s.Info[i].Count)
 		}
 	}
 	s.Count++
-	s.Sum += float64(value)
+	s.Mean += (s.Mean)*((s.Count-1.0)/s.Count) + (value / s.Count)
 }
 
 // Remove adds a blood sample to the summary
@@ -39,17 +39,9 @@ func (s *Histogramer) Remove(value float64) {
 	for i, quantile := range s.Info {
 		if value < quantile.Threshold {
 			s.Info[i].Count--
-			s.Info[i].Sum -= float64(value)
+			s.Info[i].Mean += (s.Info[i].Mean)*((s.Info[i].Count)/s.Info[i].Count+1) - (value / (s.Info[i].Count + 1))
 		}
 	}
 	s.Count--
-	s.Sum -= float64(value)
-}
-
-//Mean value
-func (s *Histogramer) Mean() float64 {
-	if s.Count > 0 {
-		return s.Sum / float64(s.Count)
-	}
-	return 0.0
+	s.Mean += (s.Mean)*((s.Count)/s.Count+1) - (value / (s.Count + 1))
 }

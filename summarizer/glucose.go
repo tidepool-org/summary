@@ -71,9 +71,9 @@ func (s *GlucoseSummarizer) Summary() []api.GlucoseSummary {
 		quantiles := make([]api.Quantile, len(histogram.Info))
 		for j, info := range histogram.Info {
 			quantiles[j].Count = new(int)
-			*quantiles[j].Count = info.Count
+			*quantiles[j].Count = int(info.Count)
 			if histogram.Count > 0 {
-				quantiles[j].Percentage = (100.0 * float32(info.Count)) / float32(histogram.Count)
+				quantiles[j].Percentage = float32((100.0 * info.Count) / histogram.Count)
 			} else {
 				quantiles[j].Percentage = 0.0
 			}
@@ -83,8 +83,8 @@ func (s *GlucoseSummarizer) Summary() []api.GlucoseSummary {
 		reports[i] = api.GlucoseSummary{
 			Period: period,
 			Stats: api.SummaryStatistics{
-				Count:     histogram.Count,
-				Mean:      float32(histogram.Mean()),
+				Count:     int(histogram.Count),
+				Mean:      float32(histogram.Mean),
 				Units:     s.Request.Units,
 				Quantiles: quantiles,
 			},
