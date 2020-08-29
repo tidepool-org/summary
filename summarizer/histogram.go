@@ -1,7 +1,5 @@
 package summarizer
 
-import "log"
-
 // QuantileInfo aggregates partial info leading to a quantile summary
 type QuantileInfo struct {
 	Count     float64
@@ -30,7 +28,6 @@ func (s *Histogramer) Add(value float64) {
 		if value < quantile.Threshold {
 			s.Info[i].Count++
 			s.Info[i].Mean = (s.Info[i].Mean)*((s.Info[i].Count-1.0)/s.Info[i].Count) + (value / s.Info[i].Count)
-			log.Printf("mean %v", s.Info[i].Mean)
 		}
 	}
 	s.Count++
