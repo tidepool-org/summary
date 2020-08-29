@@ -2,7 +2,6 @@ package summarizer
 
 import (
 	"fmt"
-	"log"
 	"reflect"
 
 	"github.com/tidepool-org/summary/api"
@@ -35,17 +34,15 @@ func NewActivitySummarizer(request api.SummaryRequest, periods []api.SummaryPeri
 }
 
 //UploadIDToIndex translates an uploadid into an index into the Usage slice
-func (a *ActivitySummarizer) UploadIDToIndex(uploadID *string) int {
+func (a *ActivitySummarizer) UploadIDToIndex(uploadID *string) (int, error) {
 	if uploadID == nil {
-		return a.Intern(nil, nil)
+		return a.Intern(nil, nil), nil
 	}
 	offset, ok := a.ActivityMap[*uploadID]
 	if !ok {
-		log.Printf("illegal offset for %v", *uploadID)
-		log.Printf("activity map %v", a.ActivityMap)
-		return 0
+		return 0, fmt.Errorf("illegal offset for %v activity map %v", *uploadID, a.ActivityMap)
 	}
-	return offset
+	return offset, nil
 }
 
 //ProcessBG updates the time
@@ -54,7 +51,10 @@ func (a *ActivitySummarizer) ProcessBG(bg *data.Blood) error {
 		return fmt.Errorf("no time provided %v", bg.ID)
 	}
 
-	offset := a.UploadIDToIndex(bg.UploadID)
+	offset, err := a.UploadIDToIndex(bg.UploadID)
+	if err != nil {
+		return err
+	}
 	if offset >= len(a.DeviceGlucose) {
 		a.DeviceGlucose = append(a.DeviceGlucose, NewGlucoseSummarizer(a.Request, a.Periods))
 	}
