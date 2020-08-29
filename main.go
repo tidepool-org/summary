@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"log"
 	"strings"
-	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
@@ -36,13 +34,10 @@ type ServiceConfig struct {
 }
 
 //NewServiceConfigFromEnv creates a service config
-func NewServiceConfigFromEnv() *ServiceConfig {
+func NewServiceConfigFromEnv() (*ServiceConfig, error) {
 	var config ServiceConfig
 	err := envconfig.Process("", &config)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	return &config
+	return &config, err
 }
 
 // NewBGProvider providers a BGProvider
@@ -59,7 +54,7 @@ func NewShareProvider(provider *dataprovider.MongoShareProvider) dataprovider.Sh
 func main() {
 	fx.New(
 		fx.Provide(NewServiceConfigFromEnv),
-		fx.Provide(ProvideSwagger),
+		fx.Provide(api.GetSwagger),
 		fx.Provide(store.NewMongoURIProviderFromEnv),
 		fx.Provide(ProvideMongoClient),
 		fx.Provide(dataprovider.NewMongoProvider),
@@ -72,30 +67,21 @@ func main() {
 	).Run()
 }
 
-//ProvideSwagger provides a swagger
-func ProvideSwagger() (*openapi3.Swagger, error) {
-	swagger, err := api.GetSwagger()
-	if err != nil {
-		log.Fatalln("ProvideSwagger: cannot create swagger:", err)
-	}
-	return swagger, err
-}
-
 // ProvideMongoClient provides a mongo client that is reachable
-func ProvideMongoClient(uriProvider store.MongoURIProvider) (*mongo.Client, error) {
-	client, err := mongo.NewClient(mongoOptions.Client().ApplyURI(uriProvider.URI()))
+func ProvideMongoClient(uriProvider store.MongoURIProvider) (client *mongo.Client, err error) {
+	client, err = mongo.NewClient(mongoOptions.Client().ApplyURI(uriProvider.URI()))
 	if err != nil {
-		log.Fatalln("ProvideMongoClient: cannot create client:", err)
+		return
 	}
-	client.Connect(context.Background())
-	time.Sleep(1 * time.Second)
+	err = client.Connect(context.Background())
 	/*
+		time.Sleep(1 * time.Second)
 		err = client.Ping(context.Background(), nil)
 		if err != nil {
 			log.Fatalf("ProvideMongoClient: could not ping mongo client: %v", err)
 		}
 	*/
-	return client, err
+	return
 }
 
 //ProvideEchoServer creates an Echo server with a default status endpoint and swagger validation of requests and responses

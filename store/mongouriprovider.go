@@ -1,8 +1,6 @@
 package store
 
 import (
-	"log"
-
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -22,13 +20,10 @@ type URIProvider interface {
 }
 
 // NewMongoURIProviderFromEnv creates a URI provider from environment variables
-func NewMongoURIProviderFromEnv() MongoURIProvider {
+func NewMongoURIProviderFromEnv() (MongoURIProvider, error) {
 	var mongo MongoURIProvider
 	err := envconfig.Process("", &mongo)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	return mongo
+	return mongo, err
 }
 
 var _ URIProvider = MongoURIProvider{}
