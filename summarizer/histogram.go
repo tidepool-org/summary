@@ -43,5 +43,5 @@ func (s *Histogramer) Remove(value float64) {
 		}
 	}
 	s.Count--
-	s.Mean += (s.Mean)*((s.Count)/s.Count+1) - (value / (s.Count + 1))
+	s.Mean += (s.Mean)*((s.Count)/(s.Count+1)) - (value / (s.Count + 1))
 }
