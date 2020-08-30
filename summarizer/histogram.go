@@ -80,7 +80,7 @@ func NewHistogramer(src []QuantileInfo) *Histogramer {
 
 	return &Histogramer{
 		Info:   dst,
-		Digest: tdigest.NewWithCompression(100.0),
+		Digest: tdigest.NewWithCompression(150.0),
 	}
 }
 
