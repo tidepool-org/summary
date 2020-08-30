@@ -2,7 +2,6 @@ package summarizer
 
 import (
 	"fmt"
-	"math"
 	"time"
 
 	"github.com/tidepool-org/summary/api"
@@ -75,13 +74,11 @@ func (s *GlucoseSummarizer) Summary() []api.GlucoseSummary {
 	for i, period := range s.Periods {
 		histogram := s.Histograms[i]
 		period.Updated = now
-		all := histogram.Info[len(histogram.Info)-1]
-
 		reports[i] = api.GlucoseSummary{
 			Period: period,
 			Stats: api.SummaryStatistics{
-				Count:     int(all.Count),
-				Mean:      float32(all.Mean),
+				Count:     int(histogram.OverallCount()),
+				Mean:      float32(histogram.OverallMean()),
 				Units:     s.Request.Units,
 				Quantiles: quantilesFromHistogram(histogram),
 			},
@@ -92,29 +89,22 @@ func (s *GlucoseSummarizer) Summary() []api.GlucoseSummary {
 
 //quantilesFromRequest makes the quantiles for a histogrammer, including a quantile to capture all the data
 func quantilesFromRequest(request api.SummaryRequest) []QuantileInfo {
-	n := len(request.Quantiles)
-	quantiles := make([]QuantileInfo, n+1)
+	quantiles := make([]QuantileInfo, len(request.Quantiles))
 	for i, requested := range request.Quantiles {
 		quantiles[i] = QuantileInfo{Name: requested.Name, Threshold: float64(requested.Threshold)}
 	}
-	quantiles[n] = QuantileInfo{Name: "**max**", Threshold: math.MaxFloat64}
 	return quantiles
 }
 
 func quantilesFromHistogram(histogram *Histogramer) []api.Quantile {
-	quantiles := make([]api.Quantile, len(histogram.Info))
-	last := len(histogram.Info) - 1
-	all := histogram.Info[last]
-	for j, info := range histogram.Info[0:last] {
+	nBins := histogram.Bins()
+	quantiles := make([]api.Quantile, nBins)
+	for j := 0; j != nBins; j++ {
 		quantiles[j].Count = new(int)
-		*quantiles[j].Count = int(info.Count)
-		if all.Count > 0 {
-			quantiles[j].Percentage = float32((100.0 * info.Count) / all.Count)
-		} else {
-			quantiles[j].Percentage = 0.0
-		}
-		quantiles[j].Threshold = float32(info.Threshold)
-		quantiles[j].Name = info.Name
+		*quantiles[j].Count = int(histogram.Count(j))
+		quantiles[j].Percentage = float32(histogram.Percentage(j))
+		quantiles[j].Threshold = float32(histogram.Threshold(j))
+		quantiles[j].Name = histogram.Name(j)
 	}
 	return quantiles
 }

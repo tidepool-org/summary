@@ -58,7 +58,7 @@ func (a *ActivitySummarizer) ProcessBG(bg *data.Blood) error {
 	if offset >= len(a.DeviceGlucose) {
 		a.DeviceGlucose = append(a.DeviceGlucose, NewGlucoseSummarizer(a.Request, a.Periods))
 	}
-	fmt.Printf("%d,%0.05f,%v,%v\n", offset, *bg.Value, *bg.Base.Time, *bg.Base.UploadID)
+	//fmt.Printf("%d,%0.05f,%v,%v\n", offset, *bg.Value, *bg.Base.Time, *bg.Base.UploadID)
 
 	return a.DeviceGlucose[offset].Process(bg)
 }
