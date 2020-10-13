@@ -12,6 +12,7 @@ type MongoURIProvider struct {
 	Password  string `envconfig:"TIDEPOOL_STORE_PASSWORD" required:"true"`
 	OptParams string `envconfig:"TIDEPOOL_STORE_OPT_PARAMS" default:""`
 	Ssl       string `envconfig:"TIDEPOOL_STORE_TLS" default:"true"`
+	Database  string `envconfig:"TIDEPOOL_STORE_DATABASE" default:"data"`
 }
 
 // URIProvider provides a URI

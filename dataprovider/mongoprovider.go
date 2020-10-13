@@ -6,23 +6,25 @@ import (
 	"time"
 
 	"github.com/tidepool-org/summary/data"
+	"github.com/tidepool-org/summary/store"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	
 )
 
 // MongoProvider provides individual blood glucose values for a list of userids
 type MongoProvider struct {
-	Client *mongo.Client
+	Client   *mongo.Client
+	Database string
 }
 
 var _ BGProvider = &MongoProvider{}
 
 //NewMongoProvider creates a new MongoProvider that uses the given Mongo client
-func NewMongoProvider(client *mongo.Client) *MongoProvider {
+func NewMongoProvider(client *mongo.Client, uriProvider store.MongoURIProvider) *MongoProvider {
 	return &MongoProvider{
-		Client: client,
+		Client:   client,
+		Database: uriProvider.Database,
 	}
 }
 
@@ -49,7 +51,7 @@ func (b *MongoProvider) GetUpload(ctx context.Context, deviceData *mongo.Collect
 
 // GetCGMSettings returns array of CGM settings for all users
 func (b *MongoProvider) GetCGMSettings(ctx context.Context, start, end time.Time, userIds []string) error {
-	deviceData := b.Client.Database("data").Collection("deviceData")
+	deviceData := b.Client.Database(b.Database).Collection("deviceData")
 	endTime := end.Format(time.RFC3339)
 
 	cgmFilter := bson.M{
@@ -76,7 +78,7 @@ func (b *MongoProvider) GetCGMSettings(ctx context.Context, start, end time.Time
 // We send the upload record before the EGV record.
 func (b *MongoProvider) GetDeviceData(ctx context.Context, start, end time.Time, ch chan<- BG, userIds []string) {
 
-	deviceData := b.Client.Database("data").Collection("deviceData")
+	deviceData := b.Client.Database(b.Database).Collection("deviceData")
 
 	projection := new(options.FindOptions).SetProjection(bson.M{
 		"_userId":  1,
